@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guidelines - Return to Work Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@500;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .sidebar {
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #475569;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-item:hover {
+            background-color: #fce7f3;
+            color: #db2777;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -1rem;
+            left: -1rem;
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 900;
+            font-size: 1.25rem;
+            font-family: 'Outfit', sans-serif;
+            box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
+        }
+
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: radial-gradient(at 0% 0%, #ffedd5 0px, transparent 50%), radial-gradient(at 80% 0%, #fae8ff 0px, transparent 50%), radial-gradient(at 0% 50%, #fce7f3 0px, transparent 50%);
+            filter: blur(80px);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col md:flex-row min-h-screen">
+    <div class="mesh-bg"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 sidebar fixed md:relative h-auto md:h-screen overflow-y-auto z-20">
+        <div class="p-6">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-10 h-10 bg-white shadow-md rounded-lg p-1 flex items-center justify-center">
+                    <img src="logo.jpg" alt="Logo" class="w-full object-contain"
+                        onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23ec4899\'><path d=\'M12 2L2 22h20L12 2z\'/></svg>'">
+                </div>
+                <div>
+                    <h1 class="font-bold text-gray-900 leading-tight">Return to Work</h1>
+                    <p class="text-[10px] uppercase font-bold text-pink-500 tracking-wider">User Guidelines</p>
+                </div>
+            </div>
+
+            <nav>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">For Employees</p>
+                <a href="#emp-filing" class="nav-item font-medium text-sm"><i
+                        class="fa-solid fa-file-pen w-6 text-center mr-2"></i> Filing a Request</a>
+                <a href="#emp-tracking" class="nav-item font-medium text-sm"><i
+                        class="fa-solid fa-clock-rotate-left w-6 text-center mr-2"></i> Tracking Status</a>
+
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">For Approvers</p>
+                <a href="#sup-review" class="nav-item font-medium text-sm"><i
+                        class="fa-solid fa-clipboard-check w-6 text-center mr-2"></i> Reviewing Applications</a>
+
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">For Nurses</p>
+                <a href="#nurse-clearance" class="nav-item font-medium text-sm"><i
+                        class="fa-solid fa-stethoscope w-6 text-center mr-2"></i> Providing Clearance</a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main ContentArea -->
+    <main class="flex-1 p-6 md:p-12 overflow-y-auto w-full max-w-5xl mx-auto z-10">
+        <header class="mb-12">
+            <h1 class="text-4xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">How to Use the Portal</h1>
+            <p class="text-lg text-gray-600">A step-by-step guide on navigating the Return to Work platform for
+                Employees, Supervisors, and the Company Clinic.</p>
+        </header>
+
+        <!-- Employee Section -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-8 pb-4 border-b border-pink-200">
+                <div class="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center text-pink-600 shadow-sm">
+                    <i class="fa-solid fa-users text-xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900">For Employees</h2>
+            </div>
+
+            <div class="space-y-12">
+                <div id="emp-filing" class="step-card mt-8">
+                    <div class="step-number">1</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 ml-6">Filing a "Return to Work" Request</h3>
+                    <div class="ml-6 space-y-3 text-gray-600">
+                        <p>When you are ready to return to work after an absence, you must file a digital request before
+                            resuming your duties.</p>
+                        <ol class="list-decimal pl-5 space-y-2 mt-4 text-sm font-medium">
+                            <li><strong>Log In:</strong> Access the portal and log in using your Biometrics ID
+                                credentials.</li>
+                            <li><strong>Dashboard:</strong> Upon logging in, you will be directed to your dashboard
+                                where you can see the application form.</li>
+                            <li><strong>Fill Details:</strong> Provide the <strong>First Date of Absence</strong> and
+                                your expected <strong>Date of Return</strong>. The total days of absence will be
+                                calculated automatically.</li>
+                            <li><strong>Provide Reason:</strong> State your reason clearly.</li>
+                            <li><strong>Supervisor Info:</strong> Select whether you notified your superior. If "Yes",
+                                type their name to search and select them from the dropdown list.</li>
+                            <li><strong>Upload Certificate:</strong> If your absence was due to sickness (except
+                                exclusions like Dysmenorrhea), you must click <strong>"Upload File"</strong> to attach a
+                                clear photo or PDF of your Medical Certificate.</li>
+                            <li><strong>Submit:</strong> Review your details and click <strong>Submit
+                                    Application</strong>.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div id="emp-tracking" class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 ml-6">Tracking Your Application Status</h3>
+                    <div class="ml-6 text-gray-600">
+                        <p class="mb-4">You can monitor the progress of your submission under the <strong>"Application
+                                History"</strong> section in your sidebar menu.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                            <div class="bg-gray-50 border border-gray-200 p-4 rounded-xl text-center">
+                                <span
+                                    class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs font-bold uppercase tracking-wider mb-2 inline-block">Pending</span>
+                                <p class="text-xs">Your supervisor has not yet reviewed your application. Please wait
+                                    for their approval.</p>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 p-4 rounded-xl text-center">
+                                <span
+                                    class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-bold uppercase tracking-wider mb-2 inline-block">Approved</span>
+                                <p class="text-xs">Your supervisor approved your request. Proceed to the clinic for your
+                                    Nurse Clearance.</p>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200 p-4 rounded-xl text-center">
+                                <span
+                                    class="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-bold uppercase tracking-wider mb-2 inline-block">Declined</span>
+                                <p class="text-xs">Your application was rejected. Click "View Details" to read the
+                                    reason provided by your supervisor or the nurse.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Approver Section -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-8 pb-4 border-b border-purple-200 mt-12">
+                <div
+                    class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 shadow-sm">
+                    <i class="fa-solid fa-user-tie text-xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900">For Approvers (Supervisors/Managers)</h2>
+            </div>
+
+            <div id="sup-review" class="step-card mt-8 border-purple-100 shadow-purple-900/5">
+                <div class="step-number" style="background: linear-gradient(135deg, #a855f7, #6b21a8);">A</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-4 ml-6">Reviewing Applications</h3>
+                <div class="ml-6 space-y-3 text-gray-600">
+                    <p>As a supervisor, you are responsible for authorizing the return of employees under your
+                        department.</p>
+                    <ol class="list-decimal pl-5 space-y-4 mt-4 text-sm font-medium">
+                        <li><strong>Dashboard Overview:</strong> Your dashboard shows a summary of
+                            <strong>Pending</strong>, <strong>Approved</strong>, and <strong>Declined</strong> requests
+                            from your department.</li>
+                        <li><strong>Review Pending Items:</strong> Click on the "Pending" shortcut card or navigate to
+                            the "Pending Actions" tab to view employees waiting for approval.</li>
+                        <li><strong>Inspect Details:</strong> Expand an application to review their Reason, Absence
+                            Dates, and view their uploaded Medical Certificate.</li>
+                        <li><strong>Take Action:</strong>
+                            <ul class="list-disc pl-5 mt-2 space-y-2 text-gray-500">
+                                <li>Click <span class="text-green-600 font-bold"><i class="fa-solid fa-check mr-1"></i>
+                                        Approve</span> if the details are valid. It will be forwarded to the Clinic.
+                                </li>
+                                <li>Click <span class="text-red-600 font-bold"><i class="fa-solid fa-xmark mr-1"></i>
+                                        Decline</span> if there are issues. You must provide a valid "Decline Reason"
+                                    which the employee will be able to read.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nurse Section -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-8 pb-4 border-b border-teal-200 mt-12">
+                <div class="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center text-teal-600 shadow-sm">
+                    <i class="fa-solid fa-kit-medical text-xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900">For Company Nurses / Clinic</h2>
+            </div>
+
+            <div id="nurse-clearance" class="step-card mt-8 border-teal-100 shadow-teal-900/5">
+                <div class="step-number" style="background: linear-gradient(135deg, #14b8a6, #0f766e);">C</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-4 ml-6">Providing Health Clearance</h3>
+                <div class="ml-6 space-y-3 text-gray-600">
+                    <p>Nurses perform the final assessment for employees whose requests have already been approved by
+                        their supervisor.</p>
+                    <ol class="list-decimal pl-5 space-y-4 mt-4 text-sm font-medium">
+                        <li><strong>New Applications:</strong> Navigate to the <strong>"New Applications"</strong> tab
+                            to see a queue of employees arriving at the clinic.</li>
+                        <li><strong>Face-to-Face Assessment:</strong> Review the employee's system record against their
+                            physical presentation and attached medical certificate.</li>
+                        <li><strong>Issue Declaration:</strong> For each employee, select one of the following health
+                            declarations:
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                                <div class="bg-white border-2 border-slate-200 p-3 rounded-lg text-center">
+                                    <div class="font-bold text-gray-800 text-xs uppercase mb-1">Fit to Work</div>
+                                    <div class="text-[10px] text-gray-500">Cleared to resume all normal duties.</div>
+                                </div>
+                                <div class="bg-white border-2 border-blue-200 p-3 rounded-lg text-center">
+                                    <div class="font-bold text-blue-700 text-xs uppercase mb-1">Return to Work</div>
+                                    <div class="text-[10px] text-gray-500">Cleared, but with specific limitations
+                                        (requires remarks).</div>
+                                </div>
+                                <div class="bg-white border-2 border-red-200 p-3 rounded-lg text-center">
+                                    <div class="font-bold text-red-600 text-xs uppercase mb-1">Unfit to Work</div>
+                                    <div class="text-[10px] text-gray-500">Not cleared. Must return home/continue rest.
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li><strong>Remarks:</strong> Add any necessary medical remarks or restrictions before saving
+                            the declaration.</li>
+                        <li><strong>History:</strong> You can review past clearances in the <strong>"Declaration
+                                History"</strong> tab.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- IT Support / Footer -->
+        <div class="text-center pt-10 border-t border-gray-200 mt-20 mb-8">
+            <h4 class="font-bold text-gray-800 mb-2">Need Help?</h4>
+            <p class="text-sm text-gray-500 mb-4">If you encounter any bugs, missing ID pictures, or login issues,
+                please contact the Information Technology Department.</p>
+            <div class="flex justify-center opacity-50">
+                <img src="it-logo.png" alt="IT Division" class="h-8" onerror="this.style.display='none'">
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Smooth scrolling for sidebar links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

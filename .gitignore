@@ -1,0 +1,121 @@
+# Environment variables and configuration
+.env
+.env.local
+.env.production
+.env.staging
+config.php
+db_config.php
+
+# Database credentials and sensitive files
+**/db.php
+
+# Upload directories (user-uploaded files)
+uploads/
+uploads/**/*
+medical_certificates/
+**/*_certificates/
+
+# Composer dependencies
+vendor/
+composer.lock
+
+# Node.js dependencies (if using npm/node for frontend assets)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP cache and logs
+*.log
+logs/
+cache/
+tmp/
+temp/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Web server files
+.htaccess
+.htpasswd
+
+# Build artifacts
+dist/
+build/
+
+# Test coverage reports
+coverage/
+.nyc_output/
+
+# PHPStorm
+.idea/
+
+# VS Code
+.vscode/
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+Session.vim
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Dreamweaver
+_notes/
+dwsync.xml
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Laravel specific (if applicable)
+bootstrap/cache/
+storage/app/
+storage/framework/
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/

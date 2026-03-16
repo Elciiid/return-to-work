@@ -1,0 +1,260 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@500;700;900&display=swap');
+
+:root {
+    --primary: #ec4899;
+    --primary-dark: #be185d;
+    --secondary: #8b5cf6;
+    --bg-mesh-1: #ffedd5;
+    --bg-mesh-2: #fae8ff;
+    --bg-mesh-3: #fce7f3;
+}
+
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-heading {
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    background-color: #f8fafc;
+    background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Mesh Background */
+.mesh-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background:
+        radial-gradient(at 0% 0%, var(--bg-mesh-3) 0px, transparent 50%),
+        radial-gradient(at 80% 0%, var(--bg-mesh-2) 0px, transparent 50%),
+        radial-gradient(at 0% 50%, var(--bg-mesh-1) 0px, transparent 50%),
+        radial-gradient(at 80% 50%, var(--bg-mesh-3) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, var(--bg-mesh-2) 0px, transparent 50%),
+        radial-gradient(at 80% 100%, var(--bg-mesh-1) 0px, transparent 50%),
+        radial-gradient(at 0% 0%, var(--bg-mesh-3) 0px, transparent 50%);
+    filter: blur(40px);
+    opacity: 0.6;
+    animation: meshFlow 20s linear infinite;
+    /* simpler linear animation */
+    will-change: transform;
+    transform: translateZ(0);
+    /* Force GPU */
+}
+
+@keyframes meshFlow {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    100% {
+        transform: scale(1.1) rotate(2deg);
+    }
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    contain: paint;
+    /* Isolate rendering */
+}
+
+.glass-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(236, 72, 153, 0.3);
+}
+
+/* Sidebar Styles */
+aside.sidebar {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.6);
+    z-index: 50;
+    transition: transform 0.3s ease;
+}
+
+.nav-item {
+    position: relative;
+    transition: all 0.3s ease;
+    color: #64748b;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, #ec4899, #f43f5e);
+    border-radius: 0 4px 4px 0;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.nav-item.active::before,
+.nav-item:hover::before {
+    transform: scaleY(1);
+}
+
+.nav-item.active {
+    background: linear-gradient(90deg, rgba(236, 72, 153, 0.1), transparent);
+    color: #db2777;
+}
+
+.nav-item:hover {
+    background: rgba(236, 72, 153, 0.05);
+    color: #db2777;
+}
+
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(236, 72, 153, 0.2);
+    border-radius: 3px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-enter {
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* --- AGGRESSIVE PERFORMANCE OPTIMIZATION --- */
+@keyframes modalEntry {
+    from {
+        opacity: 0;
+        transform: scale(0.98) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.animate-modal-entry {
+    animation: modalEntry 0.2s ease-out forwards;
+    will-change: transform, opacity;
+}
+
+body.performance-mode .mesh-bg {
+    animation: none !important;
+    filter: none !important;
+    background: #f8fafc !important;
+}
+
+body.performance-mode .glass-panel,
+body.performance-mode .glass-card,
+body.performance-mode aside.sidebar {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.performance-backdrop {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* --- PAGINATION DESIGN --- */
+.pagination-capsule {
+    position: relative;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 8px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-top: 2rem;
+    align-self: center;
+}
+
+body.performance-mode .pagination-capsule {
+    backdrop-filter: none !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.page-link {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    font-weight: 900;
+    font-size: 13px;
+    color: #64748b;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-link:hover {
+    background: #ec4899;
+    color: white;
+    transform: translateY(-2px);
+    shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.4);
+}
+
+.page-link.active {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+    color: white;
+    box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+}
+
+.page-link i {
+    font-size: 10px;
+}

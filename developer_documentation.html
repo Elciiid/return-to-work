@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Documentation - Return to Work Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+        .code-block { background: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .sidebar-link { display: block; padding: 0.5rem 1rem; border-radius: 0.5rem; color: #64748b; transition: all 0.2s; }
+        .sidebar-link:hover { background-color: #f1f5f9; color: #0f172a; }
+        .table-auto th { background-color: #f1f5f9; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; color: #64748b; }
+        .table-auto td, .table-auto th { border: 1px solid #e2e8f0; padding: 0.75rem 1rem; text-align: left; }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 fixed h-full overflow-y-auto z-10 hidden md:block text-left">
+        <div class="p-6">
+            <h1 class="text-xl font-bold text-pink-600 mb-8 tracking-tight">Return to Work<br><span class="text-sm text-gray-400 font-normal uppercase tracking-widest">Dev Docs</span></h1>
+            <nav class="space-y-2">
+                <a href="#overview" class="sidebar-link font-medium">1. Overview</a>
+                <a href="#architecture" class="sidebar-link font-medium">2. Architecture</a>
+                <a href="#database-schema" class="sidebar-link font-medium">3. Database Schema</a>
+                <a href="#process-flow" class="sidebar-link font-medium">4. Process Flow</a>
+                <a href="#directory-structure" class="sidebar-link font-medium">5. Directory Structure</a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 md:ml-64 p-8 lg:p-12 overflow-y-auto text-left">
+        <div class="max-w-5xl mx-auto space-y-16">
+            
+            <!-- Header -->
+            <header>
+                <div class="inline-flex items-center justify-center p-3 bg-pink-100 rounded-2xl mb-4 text-pink-600">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-4">Developer Documentation</h1>
+                <p class="text-xl text-gray-500">Comprehensive guide to the technical implementation of the Return to Work Portal for La Rose Noire.</p>
+            </header>
+
+            <!-- 1. Overview -->
+            <section id="overview" class="scroll-mt-12">
+                <h2 class="text-3xl font-bold mb-6 pb-2 border-b border-gray-200">1. Overview</h2>
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                    <p class="text-gray-600 leading-relaxed mb-4">
+                        The <strong>Return to Work Portal</strong> is a web-based application designed for La Rose Noire to streamline the process of employees returning to work after an absence (such as sick leave). It eliminates manual paper forms by providing a digital workflow for filing, supervisor approval, and nurse health clearance.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                        <div class="p-4 bg-slate-50 rounded-xl break-words">
+                            <h3 class="font-bold text-gray-900 mb-2">Tech Stack</h3>
+                            <ul class="text-sm text-gray-600 space-y-1 list-disc ml-4">
+                                <li><strong>Frontend:</strong> HTML5, Tailwind CSS, JS</li>
+                                <li><strong>Backend:</strong> PHP (Vanilla)</li>
+                                <li><strong>Database:</strong> SQL Server</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl break-words">
+                            <h3 class="font-bold text-gray-900 mb-2">Databases</h3>
+                            <ul class="text-sm text-gray-600 space-y-1 list-disc ml-4">
+                                <li><code class="text-pink-600 text-xs bg-pink-50 px-1 rounded">LRNPH_E</code> (Main Data)</li>
+                                <li><code class="text-pink-600 text-xs bg-pink-50 px-1 rounded">LRNPH</code> (Users)</li>
+                                <li><code class="text-pink-600 text-xs bg-pink-50 px-1 rounded">LRNPH_OJT</code> (Emp Data)</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl break-words">
+                            <h3 class="font-bold text-gray-900 mb-2">Server Setup</h3>
+                            <ul class="text-sm text-gray-600 space-y-1 list-disc ml-4">
+                                <li><strong>Host:</strong> 10.2.0.9 (DB)</li>
+                                <li><strong>Port:</strong> 1433</li>
+                                <li><strong>Env:</strong> Apache/XAMPP</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Architecture -->
+            <section id="architecture" class="scroll-mt-12">
+                <h2 class="text-3xl font-bold mb-6 pb-2 border-b border-gray-200">2. Architecture</h2>
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                    <p class="text-gray-600 mb-6">The application follows a standard centralized server architecture utilizing PHP sessions for state management and role-based access control (RBAC).</p>
+                    
+                    <div class="mermaid relative z-0 flex justify-center bg-slate-50 p-6 rounded-xl border border-slate-100">
+                        graph TD
+                        A[Client Browser] -->|HTTP POST/GET| B(Apache Web Server)
+                        B --> C{PHP Core}
+                        C -->|Session Storage| D[(PHP Sessions)]
+                        C -->|sqlsrv driver| E[(SQL Server)]
+                        E --> F[LRNPH_E DB: return_to_work]
+                        E --> G[LRNPH DB: lrnph_users]
+                        E --> H[LRNPH_OJT DB: lrn_master_list]
+                        C -->|File System| I[uploads/medical_certificates/]
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Database Schema -->
+            <section id="database-schema" class="scroll-mt-12">
+                <h2 class="text-3xl font-bold mb-6 pb-2 border-b border-gray-200">3. Database Schema</h2>
+                
+                <div class="space-y-8">
+                    <!-- return_to_work table -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="bg-slate-800 p-4 border-b border-slate-700">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-table"></i>
+                                Table: <code class="text-pink-400 bg-slate-900 px-2 py-0.5 rounded text-sm">return_to_work</code>
+                                <span class="ml-2 text-xs text-slate-400 font-normal bg-slate-700 px-2 py-0.5 rounded-full">Primary</span>
+                            </h3>
+                            <p class="text-sm text-slate-300 mt-1">Stores all return to work applications, supervisor approvals, and nurse declarations.</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full table-auto border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="w-1/4">Column Name</th>
+                                        <th class="w-1/4">Data Type (Approx)</th>
+                                        <th class="w-1/2">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm text-gray-700">
+                                    <tr><td class="font-mono text-pink-600 font-semibold">id</td><td>INT (Primary Key)</td><td>Unique identifier for the application record.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">date</td><td>DATETIME</td><td>System timestamp of when the application was submitted.</td></tr>
+                                    <tr><td class="font-mono text-pink-600">employee_number</td><td>VARCHAR</td><td>Biometrics ID of the applicant.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">employee_id</td><td>VARCHAR</td><td>Employee ID (used to fetch the ID picture).</td></tr>
+                                    <tr><td class="font-mono text-pink-600">employee_name</td><td>VARCHAR</td><td>Full name of the employee.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">department</td><td>VARCHAR</td><td>Employee's department (normalized to exclude ' - LRN').</td></tr>
+                                    <tr><td class="font-mono text-pink-600">prodn_type</td><td>VARCHAR</td><td>Assigned area or production type.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">days_absence</td><td>INT</td><td>Total number of days absent.</td></tr>
+                                    <tr><td class="font-mono text-pink-600">first_date_absence</td><td>DATE</td><td>The first day the employee was absent.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">date_returned</td><td>DATE</td><td>The date the employee is returning to work.</td></tr>
+                                    <tr><td class="font-mono text-pink-600">reason</td><td>TEXT</td><td>The stated reason for the absence.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">notified_superior</td><td>VARCHAR (Yes/No)</td><td>Whether the superior was notified.</td></tr>
+                                    <tr><td class="font-mono text-pink-600">superior_name_position</td><td>VARCHAR</td><td>Concatenated name and position of the notified superior.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">filing_date</td><td>DATE</td><td>The date chosen by the user for filing the document.</td></tr>
+                                    <tr><td class="font-mono text-pink-600">medical_certificate_path</td><td>VARCHAR</td><td>Relative system path to the uploaded medical certificate (e.g. `uploads/medical_certificates/...`)</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">status</td><td>VARCHAR</td><td>Lifecycle status: `Pending`, `Approved`, `Declined`.</td></tr>
+                                    <tr><td class="font-mono text-pink-600">approved_by</td><td>VARCHAR</td><td>Name of the supervisor who approved it.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">approved_at</td><td>DATETIME</td><td>Timestamp of supervisor approval.</td></tr>
+                                    <tr><td class="font-mono text-pink-600">declined_by</td><td>VARCHAR</td><td>Name of the supervisor who declined it.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">decline_reason</td><td>TEXT</td><td>Reason for declining the application.</td></tr>
+                                    <tr><td class="font-mono text-pink-600">declined_at</td><td>DATETIME</td><td>Timestamp of supervisor decline.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">nurse_declaration</td><td>VARCHAR</td><td>Outcome from nurse: `fit to work`, `unfit to work`, `return to work`.</td></tr>
+                                    <tr><td class="font-mono text-pink-600">nurse_reason</td><td>TEXT</td><td>Additional remarks or reason from the nurse.</td></tr>
+                                    <tr class="bg-slate-50"><td class="font-mono text-pink-600">nurse_declaration_date</td><td>DATETIME</td><td>Timestamp of the nurse's declaration.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Dependency Tables -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="bg-slate-100 p-4 border-b border-gray-200">
+                                <h3 class="text-md font-bold text-gray-800">
+                                    Table: <code class="text-pink-600 bg-white px-2 py-0.5 rounded border border-gray-200 text-sm">lrnph_users</code>
+                                </h3>
+                                <p class="text-xs text-gray-500 mt-1">Read-only view for Authentication (DB: LRNPH)</p>
+                            </div>
+                            <div class="p-4">
+                                <ul class="text-sm space-y-2 text-gray-600 list-disc ml-4">
+                                    <li><code class="font-bold text-gray-800">username</code> (Biometrics ID)</li>
+                                    <li><code class="font-bold text-gray-800">password</code> (Bcrypt hashed password)</li>
+                                </ul>
+                                <p class="text-xs text-gray-400 mt-4 italic">Used in <code>auth/authenticate.php</code> to verify user credentials during login.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="bg-slate-100 p-4 border-b border-gray-200">
+                                <h3 class="text-md font-bold text-gray-800">
+                                    Table: <code class="text-pink-600 bg-white px-2 py-0.5 rounded border border-gray-200 text-sm">lrn_master_list</code>
+                                </h3>
+                                <p class="text-xs text-gray-500 mt-1">Read-only view for Employee Details (DB: LRNPH_E & LRNPH_OJT)</p>
+                            </div>
+                            <div class="p-4">
+                                <ul class="text-sm space-y-2 text-gray-600 list-disc ml-4">
+                                    <li><code class="font-bold text-gray-800">BiometricsID</code> (Joins to username)</li>
+                                    <li><code class="font-bold text-gray-800">EmployeeID</code> (Used for Role mapping & ID photos)</li>
+                                    <li><code class="font-bold text-gray-800">FirstName</code>, <code class="font-bold text-gray-800">LastName</code></li>
+                                    <li><code class="font-bold text-gray-800">Department</code>, <code class="font-bold text-gray-800">PositionTitle</code></li>
+                                </ul>
+                                <p class="text-xs text-gray-400 mt-4 italic">Provides user context post-login and allows supervisor/employee lookups.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Process Flow -->
+            <section id="process-flow" class="scroll-mt-12">
+                <h2 class="text-3xl font-bold mb-6 pb-2 border-b border-gray-200">4. Process Flow</h2>
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 space-y-8">
+                    
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">User Roles & Access Control</h3>
+                        <p class="text-gray-600 mb-4 text-sm">Access to specific modules is determined during login at <code class="bg-slate-100 px-1 rounded text-pink-600">auth/authenticate.php</code>.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="border border-blue-100 bg-blue-50/50 p-4 rounded-xl">
+                                <h4 class="font-bold text-blue-800 flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-blue-500"></div> Employee Level</h4>
+                                <p class="text-xs text-slate-600 mt-2">Any valid user. Navigates to <code>pages/index.php</code> to file an RTW application and track its history.</p>
+                            </div>
+                            <div class="border border-purple-100 bg-purple-50/50 p-4 rounded-xl">
+                                <h4 class="font-bold text-purple-800 flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-purple-500"></div> Approver Level</h4>
+                                <p class="text-xs text-slate-600 mt-2">Hardcoded mapping of authorized <code>EmployeeID</code>s. Accesses <code>pages/dashboard.php</code>.</p>
+                            </div>
+                            <div class="border border-teal-100 bg-teal-50/50 p-4 rounded-xl">
+                                <h4 class="font-bold text-teal-800 flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-teal-500"></div> Nurse Level</h4>
+                                <p class="text-xs text-slate-600 mt-2">Users with `PositionTitle` as 'clinic assistant' or 'company nurse'. Accesses <code>pages/nurse_dashboard.php</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Return to Work Application Lifecycle</h3>
+                        <div class="mermaid flex justify-center bg-slate-50 p-6 rounded-xl border border-slate-100">
+                            stateDiagram-v2
+                                [*] --> Filling_Form: Employee Logs In
+                                
+                                state Filling_Form {
+                                    Input_Details --> Upload_MC
+                                    Upload_MC --> Submit
+                                }
+                                
+                                Submit --> Pending : Insert DB
+                                
+                                state Pending {
+                                    [*] --> Awaiting_Supervisor
+                                }
+                                
+                                Pending --> Approved : Supervisor Approves
+                                Pending --> Declined : Supervisor Declines
+                                
+                                Declined --> [*] : End Flow
+                                
+                                state Approved {
+                                    [*] --> Awaiting_Clinic
+                                }
+                                
+                                Approved --> Nurse_Clearance : Nurse Reviews
+                                
+                                state Nurse_Clearance {
+                                    Fit_To_Work
+                                    Unfit_To_Work
+                                    Return_To_Work
+                                }
+                                
+                                Fit_To_Work --> Final_Pending : (Becomes Pending for HR or filing)
+                                Unfit_To_Work --> Final_Declined : (Becomes Declined)
+                                Return_To_Work --> Final_Pending : (Becomes Pending for HR)
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Directory Structure -->
+            <section id="directory-structure" class="scroll-mt-12">
+                <h2 class="text-3xl font-bold mb-6 pb-2 border-b border-gray-200">5. Directory Structure</h2>
+                <div class="bg-gray-900 rounded-2xl p-6 shadow-sm overflow-x-auto text-sm text-gray-300 font-mono leading-relaxed mt-4">
+<pre>return-to-work-final/
+├── auth/                       <span class="text-slate-500"># Authentication mechanics</span>
+│   ├── authenticate.php        <span class="text-pink-400"># Login processor, validates against DB and sets roles</span>
+│   ├── login.php               <span class="text-pink-400"># Login UI frontend</span>
+│   ├── logout.php              <span class="text-pink-400"># Destroys session</span>
+│   └── role_switcher.php       <span class="text-pink-400"># Dev/Admin utility for quick role assumption</span>
+│
+├── db/                         <span class="text-slate-500"># Application controller logic & API</span>
+│   ├── db.php                  <span class="text-pink-400"># sqlsrv PDO connection instance setup</span>
+│   ├── submit.php              <span class="text-pink-400"># Handles the employee RTW form submission</span>
+│   ├── update_status.php       <span class="text-pink-400"># Handles Supervisor approve/decline actions</span>
+│   ├── get_supervisors.php     <span class="text-pink-400"># JSON API endpoint to fetch supervisors list dynamically</span>
+│   ├── search_employees.php    <span class="text-pink-400"># JSON API endpoint to search employee records</span>
+│   └── photo_helper.php        <span class="text-pink-400"># Utility to fetch Employee photos generically</span>
+│
+├── pages/                      <span class="text-slate-500"># Application Views</span>
+│   ├── index.php               <span class="text-pink-400"># Employee Dashboard & Application Form entry</span>
+│   ├── history.php             <span class="text-pink-400"># Employee view for past applications</span>
+│   ├── dashboard.php           <span class="text-pink-400"># Approver (Supervisor) global dashboard</span>
+│   ├── approvals.php           <span class="text-pink-400"># Approver comprehensive approval view</span>
+│   ├── pending.php             <span class="text-pink-400"># Supervisor list of pending applications</span>
+│   ├── declined.php            <span class="text-pink-400"># Supervisor list of declined applications</span>
+│   ├── nurse_dashboard.php     <span class="text-pink-400"># Nurse overview statistics</span>
+│   ├── nurse_applications.php  <span class="text-pink-400"># Nurse view of supervisor-approved cases</span>
+│   ├── nurse_declaration.php   <span class="text-pink-400"># History of nurse health clearance declarations</span>
+│   └── print_rtw.php           <span class="text-pink-400"># Generate a printable view of an RTW Form</span>
+│
+├── uploads/
+│   └── medical_certificates/   <span class="text-slate-500"># Safe upload directory for medical documents</span>
+│
+├── style.css                   <span class="text-pink-400"># Specific global CSS overrides</span>
+├── README.md                   <span class="text-pink-400"># General project markdown overview</span>
+└── developer_documentation.html<span class="text-slate-500"># This document</span></pre>
+                </div>
+            </section>
+            
+            <footer class="pt-8 pb-12 text-center border-t border-gray-200 mt-16">
+                <p class="text-gray-400 text-sm">Generated for La Rose Noire - Information Technology Department</p>
+            </footer>
+
+        </div>
+    </main>
+</body>
+</html>
