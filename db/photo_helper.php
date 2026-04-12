@@ -1,3 +1,4 @@
+<?php
 /**
  * Helper function to get employee profile photo URL
  * @param string $employee_number The employee ID/number
