@@ -1,19 +1,18 @@
 <?php
-session_start();
+require_once __DIR__ . '/../connection/database.php';
 
 // 1. Check if user is logged in and is admin
 if (!isset($_SESSION['username']) || !($_SESSION['is_admin'] ?? false)) {
-    header("Location: ../auth/login.php?error=unauthorized");
+    header("Location: /auth/login.php?error=unauthorized");
     exit();
 }
 
-include '../db/db.php';
 include '../db/photo_helper.php';
 
 // Get counts for badges or info (optional)
 try {
     $approver_department = $_SESSION['department'] ?? '';
-    $pending_count_stmt = $conn->prepare("SELECT COUNT(*) FROM return_to_work WHERE status = 'Pending' AND department = ?");
+    $pending_count_stmt = $conn->prepare("SELECT COUNT(*) FROM rtw_return_to_work WHERE status = 'Pending' AND department = ?");
     $pending_count_stmt->execute([$approver_department]);
     $pending_count = $pending_count_stmt->fetchColumn();
 } catch (PDOException $e) {
@@ -31,9 +30,8 @@ try {
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Axios for API calls -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- jQuery for existing autocomplete if needed or useful, but let's try vanilla/alpine -->
     
-    <link href="../css/style.css" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
     <style>
         [x-cloak] { display: none !important; }
 
@@ -298,7 +296,7 @@ try {
                 },
 
                 fetchData() {
-                    axios.get('../db/get_admin_data.php')
+                    axios.get('/db/get_admin_data.php')
                         .then(res => {
                             if(res.data.error) return alert(res.data.error);
                             this.permissions = res.data.permissions;
@@ -312,7 +310,7 @@ try {
                         this.searchResults = [];
                         return;
                     }
-                    axios.get(`../db/search_employees.php?term=${this.searchQuery}`)
+                    axios.get(`/db/search_employees.php?term=${this.searchQuery}`)
                         .then(res => {
                             this.searchResults = res.data;
                         });
@@ -329,7 +327,7 @@ try {
                         this.searchResultsSup = [];
                         return;
                     }
-                    axios.get(`../db/search_employees.php?term=${this.searchQuerySup}`)
+                    axios.get(`/db/search_employees.php?term=${this.searchQuerySup}`)
                         .then(res => {
                             this.searchResultsSup = res.data;
                         });
@@ -344,45 +342,40 @@ try {
                 savePermission() {
                     this.loading = true;
                     let formData = new FormData();
-                    formData.append('type', 'permission');
+                    formData.append('action', 'add_approver');
                     formData.append('employee_id', this.selectedEmployee.employee_id);
-                    formData.append('employee_name', this.selectedEmployee.employee_name);
-                    formData.append('permission_type', this.permissionType);
+                    formData.append('permission', this.permissionType);
 
-                    axios.post('../db/save_admin_data.php', formData)
+                    axios.post('/db/save_admin_data.php', formData)
                         .then(res => {
-                            if(res.data.success) {
-                                this.fetchData();
-                                this.selectedEmployee = null;
-                                this.permissionType = '';
-                                this.searchQuery = '';
-                            } else {
-                                alert(res.data.error);
-                            }
+                            // save_admin_data.php now redirects, but let's handle JSON if it was JSON
+                            // Actually I'll re-init data
+                            this.fetchData();
+                            this.selectedEmployee = null;
+                            this.permissionType = '';
+                            this.searchQuery = '';
                         })
+                        .catch(err => alert('Failed to save permission'))
                         .finally(() => this.loading = false);
                 },
 
                 saveSupervisor() {
                     this.loading = true;
                     let formData = new FormData();
-                    formData.append('type', 'supervisor');
+                    formData.append('action', 'add_supervisor');
                     formData.append('department', this.targetDept);
                     formData.append('employee_id', this.selectedSup.employee_id);
                     formData.append('custom_subtitle', this.supSubtitle);
 
-                    axios.post('../db/save_admin_data.php', formData)
+                    axios.post('/db/save_admin_data.php', formData)
                         .then(res => {
-                            if(res.data.success) {
-                                this.fetchData();
-                                this.selectedSup = null;
-                                this.targetDept = '';
-                                this.supSubtitle = '';
-                                this.searchQuerySup = '';
-                            } else {
-                                alert(res.data.error);
-                            }
+                            this.fetchData();
+                            this.selectedSup = null;
+                            this.targetDept = '';
+                            this.supSubtitle = '';
+                            this.searchQuerySup = '';
                         })
+                        .catch(err => alert('Failed to save supervisor'))
                         .finally(() => this.loading = false);
                 },
 
@@ -390,14 +383,14 @@ try {
                     if(!confirm('Are you sure you want to remove this entry?')) return;
                     
                     let formData = new FormData();
-                    formData.append('type', type);
+                    formData.append('action', type === 'permission' ? 'delete_approver' : 'delete_supervisor');
                     formData.append('id', id);
 
-                    axios.post('../db/delete_admin_data.php', formData)
+                    axios.post('/db/delete_admin_data.php', formData)
                         .then(res => {
-                            if(res.data.success) this.fetchData();
-                            else alert(res.data.error);
-                        });
+                            this.fetchData();
+                        })
+                        .catch(err => alert('Deletion failed'));
                 },
 
                 formatDate(dateStr) {

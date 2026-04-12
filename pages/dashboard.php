@@ -1,9 +1,9 @@
 <?php
-session_start();
+require_once __DIR__ . '/../connection/database.php';
 
 // 1. Check if user is logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: ../auth/login.php");
+    header("Location: /auth/login.php");
     exit();
 }
 
@@ -12,12 +12,10 @@ if (!isset($_SESSION['username'])) {
 $is_authorized = $_SESSION['is_approver'] ?? false;
 
 if (!$is_authorized) {
-    // This is what triggers the error modal in your image
-    header("Location: ../auth/login.php?error=access_denied&role=" . urlencode($_SESSION['department'] ?? ''));
+    header("Location: /auth/login.php?error=access_denied&role=" . urlencode($_SESSION['department'] ?? ''));
     exit();
 }
 
-include '../db/db.php';
 include '../db/photo_helper.php';
 
 // Get approver's department for filtering
@@ -25,20 +23,26 @@ $approver_department = $_SESSION['department'] ?? '';
 
 try {
     // Filter by department for all queries
-    $total_stmt = $conn->prepare("SELECT COUNT(*) FROM return_to_work WHERE status = 'Approved' AND department = ?");
+    $total_stmt = $conn->prepare("SELECT COUNT(*) FROM rtw_return_to_work WHERE status = 'Approved' AND department = ?");
     $total_stmt->execute([$approver_department]);
     $total_submissions = $total_stmt->fetchColumn();
 
-    $seven_days_stmt = $conn->prepare("SELECT COUNT(*) FROM return_to_work WHERE status = 'Approved' AND department = ? AND filing_date >= DATEADD(day, -7, GETDATE())");
+    $seven_days_stmt = $conn->prepare("SELECT COUNT(*) FROM rtw_return_to_work WHERE status = 'Approved' AND department = ? AND filing_date >= CURRENT_DATE - INTERVAL '7 days'");
     $seven_days_stmt->execute([$approver_department]);
     $weekly_count = $seven_days_stmt->fetchColumn();
 
-    $recent_stmt = $conn->prepare("SELECT TOP 5 filing_date, employee_name, employee_number, employee_id, prodn_type, nurse_declaration, department FROM return_to_work WHERE status = 'Approved' AND department = ? ORDER BY filing_date DESC, id DESC");
+    $recent_stmt = $conn->prepare("SELECT filing_date, employee_name, employee_number, employee_id, prodn_type, nurse_declaration, department FROM rtw_return_to_work WHERE status = 'Approved' AND department = ? ORDER BY filing_date DESC, id DESC LIMIT 5");
     $recent_stmt->execute([$approver_department]);
     $recent_activity = $recent_stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Get pending count for the card
+    $pending_stmt = $conn->prepare("SELECT COUNT(*) FROM rtw_return_to_work WHERE status = 'Pending' AND department = ?");
+    $pending_stmt->execute([$approver_department]);
+    $pending_count = $pending_stmt->fetchColumn();
+
 } catch (PDOException $e) {
-    die("Database Error: " . $e->getMessage());
+    error_log("Dashboard Error: " . $e->getMessage());
+    die("Database Error. Please try again later.");
 }
 ?>
 <!DOCTYPE html>
@@ -50,7 +54,7 @@ try {
     <title>Dashboard - La Rose Noire</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="../css/style.css" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
     <style>
         .input-focus:focus {
             border-color: #ec4899;
@@ -83,8 +87,8 @@ try {
         <!-- Mobile Header -->
         <div class="md:hidden flex justify-between items-center mb-6 shrink-0 relative z-[60]">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 glass-panel flex items-center justify-center shadow-lg rounded-xl">
-                    <img src="../logo.jpg" alt="Logo" class="w-full h-full object-contain p-1">
+                <div class="w-10 h-10 glass-effect flex items-center justify-center shadow-lg rounded-xl">
+                    <img src="/assets/logo.jpg" alt="Logo" class="w-full h-full object-contain p-1">
                 </div>
                 <span class="font-black text-gray-800 tracking-tight">Dashboard</span>
             </div>
@@ -97,7 +101,7 @@ try {
         $page_subtitle = "Here's what's happening in your facility today.";
         ob_start(); ?>
         <div class="flex gap-3">
-            <div class="h-12 px-4 rounded-2xl glass-panel flex items-center gap-3 text-slate-600 font-bold shadow-sm">
+            <div class="h-12 px-4 rounded-2xl glass-effect flex items-center gap-3 text-slate-600 font-bold shadow-sm">
                 <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
                 <span>Online</span>
             </div>
@@ -156,7 +160,7 @@ try {
             </div>
 
             <!-- Card 3: Pending (Actionable) -->
-            <a href="approvals.php?status=Pending"
+            <a href="/pages/approvals.php?status=Pending"
                 class="glass-card p-6 rounded-3xl relative overflow-hidden group animate-enter delay-300 border-l-4 border-l-orange-400 hover:border-l-orange-500 cursor-pointer block">
                 <div
                     class="absolute -right-6 -top-6 w-32 h-32 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full opacity-50 blur-2xl group-hover:opacity-100 transition-opacity">
@@ -193,14 +197,14 @@ try {
         </div>
 
         <!-- Recent Submissions Table -->
-        <div class="flex-1 glass-panel rounded-3xl flex flex-col overflow-hidden shadow-xl animate-enter delay-300">
+        <div class="flex-1 glass-effect rounded-3xl flex flex-col overflow-hidden shadow-xl animate-enter delay-300">
             <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-white/40">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-pink-100 text-pink-500 flex items-center justify-center"><i
                             class="fa-solid fa-list-check"></i></div>
                     <h3 class="text-lg font-black text-slate-800 tracking-tight">Recent Activity</h3>
                 </div>
-                <a href="approvals.php?status=All"
+                <a href="/pages/approvals.php?status=All"
                     class="text-xs font-bold text-pink-500 hover:text-pink-700 uppercase tracking-wider transition-colors">View
                     All History &rarr;</a>
             </div>
@@ -236,15 +240,15 @@ try {
                                         <div class="flex items-center gap-4">
                                             <div
                                                 class="w-10 h-10 rounded-full bg-white shadow-sm p-0.5 shrink-0 overflow-hidden">
-                                                <?= getEmployeePhotoImg($recent['employee_id'] ?? '', 'w-full h-full object-cover rounded-full', htmlspecialchars($recent['employee_name'])) ?>
+                                                <?= getEmployeePhotoImg($recent['employee_id'] ?? '', 'w-full h-full object-cover rounded-full', htmlspecialchars($recent['employee_name'] ?? '')) ?>
                                             </div>
                                             <div>
                                                 <div
                                                     class="font-bold text-slate-800 group-hover:text-pink-600 transition-colors">
-                                                    <?= htmlspecialchars($recent['employee_name']) ?>
+                                                    <?= htmlspecialchars($recent['employee_name'] ?? '') ?>
                                                 </div>
                                                 <div class="text-[10px] text-slate-400 tracking-wider font-bold">
-                                                    <?= htmlspecialchars($recent['employee_number'] ?? $recent['employee_id']) ?>
+                                                    <?= htmlspecialchars($recent['employee_number'] ?? $recent['employee_id'] ?? '') ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -295,4 +299,4 @@ try {
     <?php include '../components/logout_modal.php'; ?>
 </body>
 
-</html>
+</html>

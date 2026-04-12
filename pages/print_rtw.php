@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../connection/database.php';
 
 // 1. Security Check
 $is_authorized = $_SESSION['is_approver'] ?? false;
@@ -8,7 +8,6 @@ if (!isset($_SESSION['username']) || !$is_authorized) {
     die("Unauthorized access.");
 }
 
-include '../db/db.php';
 include '../db/photo_helper.php';
 
 // 2. Fetch the specific record
@@ -17,14 +16,15 @@ if (!$id)
     die("No ID provided.");
 
 try {
-    $stmt = $conn->prepare("SELECT * FROM return_to_work WHERE id = ?");
+    $stmt = $conn->prepare("SELECT * FROM rtw_return_to_work WHERE id = ?");
     $stmt->execute([$id]);
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$data)
         die("Record not found.");
 } catch (PDOException $e) {
-    die("Database Error: " . $e->getMessage());
+    error_log("Print RTW Error: " . $e->getMessage());
+    die("Database Error.");
 }
 ?>
 <!DOCTYPE html>
@@ -32,8 +32,9 @@ try {
 
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>Print RTW #<?= str_pad($data['id'], 4, '0', STR_PAD_LEFT) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @media print {
             .no-print {
@@ -82,21 +83,21 @@ try {
                 <div class="flex items-center gap-3 mb-2">
                     <div
                         class="w-16 h-16 rounded-full overflow-hidden bg-pink-100 flex items-center justify-center shrink-0">
-                        <?= getEmployeePhotoImg($data['employee_id'] ?? '', 'w-full h-full object-cover', htmlspecialchars($data['employee_name'])) ?>
+                        <?= getEmployeePhotoImg($data['employee_id'] ?? '', 'w-full h-full object-cover', htmlspecialchars($data['employee_name'] ?? '')) ?>
                     </div>
                     <div>
                         <p class="text-[10px] font-black text-gray-400 uppercase">Employee Name</p>
-                        <p class="font-bold text-lg"><?= htmlspecialchars($data['employee_name']) ?></p>
+                        <p class="font-bold text-lg"><?= htmlspecialchars($data['employee_name'] ?? '') ?></p>
                     </div>
                 </div>
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-black text-gray-400 uppercase">Employee ID</p>
-                <p class="font-bold text-lg"><?= htmlspecialchars($data['employee_number']) ?></p>
+                <p class="font-bold text-lg"><?= htmlspecialchars($data['employee_number'] ?? '') ?></p>
             </div>
             <div>
                 <p class="text-[10px] font-black text-gray-400 uppercase">Assigned Area</p>
-                <p class="font-bold"><?= htmlspecialchars($data['prodn_type']) ?></p>
+                <p class="font-bold"><?= htmlspecialchars($data['prodn_type'] ?? '') ?></p>
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-black text-gray-400 uppercase">Date Filed</p>
@@ -125,7 +126,7 @@ try {
         <div class="mt-8">
             <p class="text-[10px] font-black text-gray-400 uppercase mb-2">Detailed Reason for Absence</p>
             <p class="text-gray-700 italic border-l-4 border-pink-200 pl-4 py-2 bg-pink-50/30">
-                <?= nl2br(htmlspecialchars($data['reason'])) ?>
+                <?= nl2br(htmlspecialchars($data['reason'] ?? '')) ?>
             </p>
         </div>
 
@@ -149,7 +150,7 @@ try {
         <div class="mt-20 grid grid-cols-2 gap-20">
             <div class="text-center">
                 <div class="min-h-[1.5rem] mb-1">
-                    <p class="text-xs font-black uppercase"><?= htmlspecialchars($data['employee_name']) ?></p>
+                    <p class="text-xs font-black uppercase"><?= htmlspecialchars($data['employee_name'] ?? '') ?></p>
                 </div>
                 <div class="border-t border-black pt-2">
                     <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Employee Signature</p>
@@ -163,8 +164,7 @@ try {
                     </p>
                 </div>
                 <div class="border-t border-black pt-2">
-                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Superior / Notified
-                        Personnel</p>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Superior / Notified Personnel</p>
                 </div>
             </div>
         </div>
@@ -179,34 +179,7 @@ try {
             </button>
         </div>
     </div>
-
-    <script>
-        // Function to try multiple photo extensions
-        function tryPhotoExtensions(employeeId, imgElement) {
-            var extensions = ['jpeg', 'png', 'JPG', 'JPEG', 'PNG']; // Skip 'jpg' as default
-            var baseUrl = 'http://10.2.0.8/lrnph/emp_photos/';
-
-            // Initialize state
-            if (typeof imgElement.dataset.tryIndex === 'undefined') {
-                imgElement.dataset.tryIndex = 0;
-            }
-
-            var currentIndex = parseInt(imgElement.dataset.tryIndex);
-
-            if (currentIndex < extensions.length) {
-                // Try next
-                imgElement.dataset.tryIndex = currentIndex + 1;
-                imgElement.src = baseUrl + employeeId + '.' + extensions[currentIndex];
-            } else {
-                // Give up
-                imgElement.onerror = null;
-                imgElement.style.display = 'none';
-                if (imgElement.nextElementSibling) {
-                    imgElement.nextElementSibling.style.display = 'block';
-                }
-            }
-        }
-    </script>
 </body>
 
 </html>
+tml>

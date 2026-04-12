@@ -1,36 +1,34 @@
 <?php
-session_start();
-header('Content-Type: application/json');
+require_once __DIR__ . '/../connection/database.php';
 
-if (!($_SESSION['is_admin'] ?? false)) {
-    echo json_encode(['error' => 'Unauthorized access.']);
-    exit;
+// Only admins can delete admin data
+if (($_SESSION['role'] ?? '') !== 'admin') {
+    die("Unauthorized access.");
 }
 
-include 'db.php';
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $action = $_POST['action'] ?? '';
+    $id = $_POST['id'] ?? '';
 
-$type = $_POST['type'] ?? ''; // 'permission' or 'supervisor'
-$id = $_POST['id'] ?? '';
-
-if (empty($id)) {
-    echo json_encode(['error' => 'Missing ID.']);
-    exit;
-}
-
-try {
-    if ($type === 'permission') {
-        $stmt = $conn->prepare("DELETE FROM user_permissions WHERE id = ?");
-    } elseif ($type === 'supervisor') {
-        $stmt = $conn->prepare("DELETE FROM rtw_supervisors WHERE id = ?");
-    } else {
-        echo json_encode(['error' => 'Invalid type.']);
-        exit;
+    if (!$id) {
+        die("Missing ID.");
     }
 
-    $stmt->execute([$id]);
-    echo json_encode(['success' => true]);
+    try {
+        if ($action === 'delete_approver') {
+            $stmt = $conn->prepare("DELETE FROM rtw_user_permissions WHERE id = ?");
+            $stmt->execute([$id]);
+        } elseif ($action === 'delete_supervisor') {
+            $stmt = $conn->prepare("DELETE FROM rtw_supervisors WHERE id = ?");
+            $stmt->execute([$id]);
+        }
 
-} catch (PDOException $e) {
-    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+        header("Location: /pages/settings.php?deleted=1");
+        exit();
+
+    } catch (PDOException $e) {
+        error_log("Delete Admin Data Error: " . $e->getMessage());
+        die("Database Error.");
+    }
 }
 ?>

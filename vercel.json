@@ -1,0 +1,15 @@
+{
+    "version": 2,
+    "regions": ["sin1"],
+    "builds": [
+        { "src": "css/**", "use": "@vercel/static" },
+        { "src": "assets/**", "use": "@vercel/static" },
+        { "src": "**/*.php", "use": "vercel-php@0.7.2" }
+    ],
+    "routes": [
+        { "src": "/css/(.*)", "dest": "/css/$1" },
+        { "src": "/assets/(.*)", "dest": "/assets/$1" },
+        { "src": "^/$", "dest": "/pages/index.php" },
+        { "src": "/(.*)", "dest": "/$1" }
+    ]
+}

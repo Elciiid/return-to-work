@@ -1,10 +1,10 @@
 <?php
-session_start();
+require_once __DIR__ . '/../connection/database.php';
+
 if (!isset($_SESSION['username'])) {
-    header("Location: ../auth/login.php");
+    header("Location: /auth/login.php");
     exit();
 }
-include '../db/db.php';
 include '../db/photo_helper.php';
 ?>
 <!DOCTYPE html>
@@ -16,7 +16,7 @@ include '../db/photo_helper.php';
     <title>Return to Work</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="../css/style.css" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
     <style>
         .input-focus:focus {
             border-color: #ec4899;
@@ -46,7 +46,7 @@ include '../db/photo_helper.php';
         <div class="md:hidden flex justify-between items-center mb-6 shrink-0 relative z-[60]">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 glass-effect flex items-center justify-center shadow-lg rounded-xl">
-                    <img src="../logo.jpg" alt="Logo" class="w-full h-full object-contain p-1">
+                    <img src="/assets/logo.jpg" alt="Logo" class="w-full h-full object-contain p-1">
                 </div>
                 <span class="font-black text-gray-800 tracking-tight">Return to Work</span>
             </div>
@@ -63,7 +63,7 @@ include '../db/photo_helper.php';
         include '../components/header.php'; 
         ?>
 
-            <form action="../db/submit.php" method="POST" enctype="multipart/form-data" id="rtwForm"
+            <form action="/db/submit.php" method="POST" enctype="multipart/form-data" id="rtwForm"
                 onsubmit="return validateForm()"
                 class="flex flex-col lg:flex-row gap-8 items-stretch text-left overflow-visible">
                 <div class="flex-[3] space-y-6 overflow-visible">
@@ -77,7 +77,7 @@ include '../db/photo_helper.php';
                                     <i
                                         class="fa-solid fa-user absolute left-6 top-1/2 -translate-y-1/2 text-pink-400 text-xl"></i>
                                     <input type="text" id="emp_name" name="emp_name" readonly
-                                        value="<?= htmlspecialchars($_SESSION['fullname']) ?>"
+                                        value="<?= htmlspecialchars($_SESSION['fullname'] ?? '') ?>"
                                         class="w-full bg-slate-100 border-2 border-slate-200 p-5 pl-16 rounded-2xl outline-none text-xl font-bold text-gray-500 shadow-sm cursor-not-allowed">
                                 </div>
                             </div>
@@ -226,7 +226,7 @@ include '../db/photo_helper.php';
                 </div>
                 <h3 class="text-2xl font-black text-slate 700 mb-2">Success!</h3>
                 <p class="text-slate-500 font-medium mb-8">Your application has been submitted successfully.</p>
-                <button onclick="window.location.href='index.php'"
+                <button onclick="window.location.href='/pages/index.php'"
                     class="w-full bg-gradient-to-r from-pink-500 to-rose-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-pink-500/50 uppercase text-xs tracking-widest hover:shadow-2xl hover:shadow-pink-500/60 transition-all">
                     Great, Thanks!
                 </button>
@@ -294,7 +294,7 @@ include '../db/photo_helper.php';
             const list = document.getElementById('supervisorList');
             list.innerHTML = '<div class="flex justify-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-pink-500"></i></div>';
 
-            fetch('../db/get_supervisors.php')
+            fetch('/db/get_supervisors.php')
                 .then(res => res.json())
                 .then(data => {
                     list.innerHTML = '';
@@ -348,32 +348,6 @@ include '../db/photo_helper.php';
             return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
         }
 
-        // Function to try multiple photo extensions
-        function tryPhotoExtensions(employeeId, imgElement) {
-            var extensions = ['jpeg', 'png', 'JPG', 'JPEG', 'PNG']; // Skip 'jpg' as default
-            var baseUrl = 'http://10.2.0.8/lrnph/emp_photos/';
-
-            // Initialize state
-            if (typeof imgElement.dataset.tryIndex === 'undefined') {
-                imgElement.dataset.tryIndex = 0;
-            }
-
-            var currentIndex = parseInt(imgElement.dataset.tryIndex);
-
-            if (currentIndex < extensions.length) {
-                // Try next
-                imgElement.dataset.tryIndex = currentIndex + 1;
-                imgElement.src = baseUrl + employeeId + '.' + extensions[currentIndex];
-            } else {
-                // Give up
-                imgElement.onerror = null;
-                imgElement.style.display = 'none';
-                if (imgElement.nextElementSibling) {
-                    imgElement.nextElementSibling.style.display = 'block';
-                }
-            }
-        }
-
         function toggleSuperior(show) {
             const area = document.getElementById('superior_input_area');
             if (show) {
@@ -392,4 +366,4 @@ include '../db/photo_helper.php';
     <?php include '../components/logout_modal.php'; ?>
 </body>
 
-</html>
+</html>

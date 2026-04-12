@@ -1,9 +1,9 @@
 <?php
-session_start();
+require_once __DIR__ . '/../connection/database.php';
 
 // 1. Check if user is logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: ../auth/login.php");
+    header("Location: /auth/login.php");
     exit();
 }
 
@@ -12,11 +12,10 @@ if (!isset($_SESSION['username'])) {
 $is_authorized = $_SESSION['is_approver'] ?? false;
 
 if (!$is_authorized) {
-    header("Location: ../auth/login.php?error=access_denied&role=" . urlencode($_SESSION['department'] ?? ''));
+    header("Location: /auth/login.php?error=access_denied&role=" . urlencode($_SESSION['department'] ?? ''));
     exit();
 }
 
-include '../db/db.php';
 include '../db/photo_helper.php';
 
 // Get approver's department for filtering
@@ -35,10 +34,10 @@ $sort_order = $_GET['sort'] ?? 'DESC';
 
 try {
     // 1. Get Total Count for Pagination (Approved only, filtered by department)
-    $count_query = "SELECT COUNT(*) FROM return_to_work WHERE status = 'Approved' AND department = ?";
+    $count_query = "SELECT COUNT(*) FROM rtw_return_to_work WHERE status = 'Approved' AND department = ?";
     $count_params = [$approver_department];
     if ($search) {
-        $count_query .= " AND (UPPER(employee_name) LIKE UPPER(?) OR UPPER(employee_id) LIKE UPPER(?) OR UPPER(employee_number) LIKE UPPER(?) OR UPPER(prodn_type) LIKE UPPER(?))";
+        $count_query .= " AND (\"employee_name\" ILIKE ? OR \"employee_id\" ILIKE ? OR \"employee_number\" ILIKE ? OR \"prodn_type\" ILIKE ?)";
         $search_param = '%' . $search . '%';
         $count_params = array_merge($count_params, [$search_param, $search_param, $search_param, $search_param]);
     }
@@ -57,10 +56,10 @@ try {
     $total_pages = ceil($total_rows / $limit);
 
     // 2. Fetch Limited Results (Approved only, filtered by department)
-    $query = "SELECT * FROM return_to_work WHERE status = 'Approved' AND department = ?";
+    $query = "SELECT * FROM rtw_return_to_work WHERE status = 'Approved' AND department = ?";
     $params = [$approver_department];
     if ($search) {
-        $query .= " AND (UPPER(employee_name) LIKE UPPER(?) OR UPPER(employee_id) LIKE UPPER(?) OR UPPER(employee_number) LIKE UPPER(?) OR UPPER(prodn_type) LIKE UPPER(?))";
+        $query .= " AND (\"employee_name\" ILIKE ? OR \"employee_id\" ILIKE ? OR \"employee_number\" ILIKE ? OR \"prodn_type\" ILIKE ?)";
         $search_param = '%' . $search . '%';
         $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param]);
     }
@@ -75,18 +74,19 @@ try {
 
     $orderDirection = ($sort_order === 'ASC') ? 'ASC' : 'DESC';
     $query .= " ORDER BY filing_date $orderDirection, id $orderDirection";
-    $query .= " OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY"; // For SQL Server
+    $query .= " LIMIT $limit OFFSET $offset";
 
     $stmt = $conn->prepare($query);
     $stmt->execute($params);
     $submissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Get pending count for sidebar badge (filtered by department)
-    $pending_count_stmt = $conn->prepare("SELECT COUNT(*) FROM return_to_work WHERE status = 'Pending' AND department = ?");
+    $pending_count_stmt = $conn->prepare("SELECT COUNT(*) FROM rtw_return_to_work WHERE status = 'Pending' AND department = ?");
     $pending_count_stmt->execute([$approver_department]);
     $pending_count = $pending_count_stmt->fetchColumn();
 } catch (PDOException $e) {
-    die("Database Error: " . $e->getMessage());
+    error_log("History Page Error: " . $e->getMessage());
+    die("Database Error. Please try again later.");
 }
 ?>
 <!DOCTYPE html>
@@ -97,206 +97,8 @@ try {
     <title>Approved - La Rose Noire</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@500;700;900&display=swap');
-
-        :root {
-            --primary: #ec4899;
-            --primary-dark: #be185d;
-            --secondary: #8b5cf6;
-            --bg-mesh-1: #ffedd5;
-            --bg-mesh-2: #fae8ff;
-            --bg-mesh-3: #fce7f3;
-        }
-
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        .font-heading {
-            font-family: 'Outfit', sans-serif;
-        }
-
-        body {
-            background-color: #f8fafc;
-            background-image:
-                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
-                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
-            background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Mesh Background */
-        .mesh-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            background:
-                radial-gradient(at 0% 0%, var(--bg-mesh-3) 0px, transparent 50%),
-                radial-gradient(at 80% 0%, var(--bg-mesh-2) 0px, transparent 50%),
-                radial-gradient(at 0% 50%, var(--bg-mesh-1) 0px, transparent 50%),
-                radial-gradient(at 80% 50%, var(--bg-mesh-3) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, var(--bg-mesh-2) 0px, transparent 50%),
-                radial-gradient(at 80% 100%, var(--bg-mesh-1) 0px, transparent 50%),
-                radial-gradient(at 0% 0%, var(--bg-mesh-3) 0px, transparent 50%);
-            filter: blur(80px);
-            opacity: 0.8;
-            animation: meshFlow 20s infinite alternate;
-        }
-
-        @keyframes meshFlow {
-            0% {
-                transform: scale(1);
-            }
-
-            100% {
-                transform: scale(1.1);
-            }
-        }
-
-        /* Glassmorphism Utilities */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow:
-                0 4px 6px -1px rgba(0, 0, 0, 0.02),
-                0 2px 4px -1px rgba(0, 0, 0, 0.02),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px) scale(1.01);
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow:
-                0 20px 25px -5px rgba(0, 0, 0, 0.05),
-                0 10px 10px -5px rgba(0, 0, 0, 0.02),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.8);
-            border-color: rgba(236, 72, 153, 0.3);
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-enter {
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-        }
-
-        .delay-100 {
-            animation-delay: 0.1s;
-        }
-
-        .delay-200 {
-            animation-delay: 0.2s;
-        }
-
-        .delay-300 {
-            animation-delay: 0.3s;
-        }
-
-        /* Sidebar */
-        aside.sidebar {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
-            z-index: 50;
-        }
-
-        .nav-item {
-            position: relative;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-
-        .nav-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(to bottom, #ec4899, #f43f5e);
-            border-radius: 0 4px 4px 0;
-            transform: scaleY(0);
-            transition: transform 0.3s ease;
-        }
-
-        .nav-item.active::before,
-        .nav-item:hover::before {
-            transform: scaleY(1);
-        }
-
-        .nav-item.active {
-            background: linear-gradient(90deg, rgba(236, 72, 153, 0.1), transparent);
-            color: #db2777;
-        }
-
-        .nav-item:hover:not(.active) {
-            background: rgba(0, 0, 0, 0.02);
-            color: #db2777;
-        }
-
-        /* Custom scrollbar for main area */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(236, 72, 153, 0.2);
-            border-radius: 3px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(236, 72, 153, 0.4);
-        }
-
         .pagination-capsule {
             position: fixed;
             bottom: 2rem;
@@ -337,14 +139,6 @@ try {
             background-color: rgba(236, 72, 153, 0.1);
             color: #ec4899;
         }
-
-        .floating-element {
-            animation: none;
-        }
-
-        .no-animation {
-            animation: none !important;
-        }
     </style>
 </head>
 
@@ -355,115 +149,8 @@ try {
     <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-transparent z-[90] hidden md:hidden">
     </div>
 
-    <aside id="sidebar"
-        class="sidebar w-72 flex flex-col h-[100dvh] shrink-0 fixed top-0 left-0 z-[100] transform transition-transform duration-300 -translate-x-full md:relative md:translate-x-0 bg-white/80 md:bg-white/80">
-        <div class="flex-1 flex flex-col pt-12 px-6">
-            <div class="flex items-center gap-4 mb-10 shrink-0 ml-2 floating-element">
-                <div class="w-14 h-14 glass-effect flex items-center justify-center shadow-2xl shrink-0 rounded-2xl">
-                    <img src="../logo.jpg" alt="Logo" class="w-full h-full object-contain">
-                </div>
-                <div class="flex flex-col justify-center text-left">
-                    <h1 class="font-black text-black leading-none text-lg tracking-tighter uppercase">La Rose Noire</h1>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="h-[2px] w-2 bg-gradient-to-r from-pink-400 to-rose-500"></span>
-                        <p
-                            class="text-[8px] uppercase tracking-[0.3em] bg-gradient-to-r from-pink-400 to-rose-500 bg-clip-text text-transparent font-bold whitespace-nowrap">
-                            Return to Work</p>
-                    </div>
-                </div>
-            </div>
-
-            <div
-                class="profile-card mb-6 py-3 px-4 rounded-3xl group relative overflow-visible !flex !flex-col !items-center !justify-center !text-center !gap-2">
-                <div
-                    class="absolute inset-0 bg-white/40 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                </div>
-
-                <div class="relative w-fit mx-auto mb-1">
-                    <div
-                        class="avatar w-16 h-16 rounded-full flex items-center justify-center text-white shadow-lg shadow-pink-500/20 shrink-0 border-[3px] border-white relative z-10">
-                        <?= getEmployeePhotoImg($_SESSION['employee_id'] ?? '', 'w-full h-full object-cover rounded-full', htmlspecialchars($_SESSION['fullname'])) ?>
-                    </div>
-                    <div class="absolute bottom-0 left-0 flex h-4 w-4 z-20">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span
-                            class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-[2px] border-white"></span>
-                    </div>
-                </div>
-
-                <div class="meta w-full relative z-10 flex flex-col items-center justify-center">
-                    <p
-                        class="text-base font-black text-slate-800 truncate w-full group-hover:text-pink-600 transition-colors leading-tight">
-                        <?= htmlspecialchars($_SESSION['fullname']) ?>
-                    </p>
-                    <p class="role text-[9px] uppercase font-bold text-slate-400 tracking-wider">
-                        <?= htmlspecialchars($_SESSION['department'] ?? '') ?>
-                    </p>
-                </div>
-            </div>
-
-            <div class="overflow-y-auto custom-scrollbar flex-1">
-                <nav class="space-y-4">
-                    <?php
-                    $is_authorized = $_SESSION['is_approver'] ?? false;
-                    ?>
-
-                    <?php if ($is_authorized): ?>
-                        <a href="dashboard.php"
-                            class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?> flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-sm">
-                            <i class="fa-solid fa-chart-pie text-lg w-6"></i>
-                            <span class="tracking-tight">Dashboard</span>
-                        </a>
-                    <?php endif; ?>
-
-                    <a href="index.php"
-                        class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?> flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-sm">
-                        <i class="fa-solid fa-file-signature text-lg w-6"></i>
-                        <span class="tracking-tight">New Application</span>
-                    </a>
-
-                    <?php if ($is_authorized): ?>
-                        <a href="pending.php"
-                            class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'pending.php' ? 'active' : ''; ?> flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-sm">
-                            <i class="fa-solid fa-hourglass-half text-lg w-6"></i>
-                            <span class="tracking-tight flex items-center gap-2">
-                                Pending
-                                <?php if ($pending_count > 0): ?>
-                                    <span
-                                        class="bg-pink-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[16px] h-4 flex items-center justify-center">
-                                        <?= $pending_count ?>
-                                    </span>
-                                <?php endif; ?>
-                            </span>
-                        </a>
-                        <a href="history.php"
-                            class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'history.php' ? 'active' : ''; ?> flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-sm">
-                            <i class="fa-solid fa-circle-check text-lg w-6"></i>
-                            <span class="tracking-tight">Approved</span>
-                        </a>
-                        <a href="declined.php"
-                            class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'declined.php' ? 'active' : ''; ?> flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-sm">
-                            <i class="fa-solid fa-times-circle text-lg w-6"></i>
-                            <span class="tracking-tight">Declined</span>
-                        </a>
-                    <?php endif; ?>
-                </nav>
-            </div>
-
-            <div class="px-6 pb-6 flex items-center justify-center floating-element">
-                <img src="../it-logo.png" alt="IT Logo"
-                    class="w-24 opacity-70 transition-all duration-300 hover:opacity-100 hover:scale-110">
-            </div>
-            <div class="pt-6 border-t border-slate-700 mt-auto mb-6">
-                <a href="#" onclick="openLogoutModal()"
-                    class="group nav-item flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-sm">
-                    <i class="fa-solid fa-right-from-bracket text-lg w-6"></i>
-                    <span class="tracking-tight">Logout</span>
-                </a>
-            </div>
-        </div>
-    </aside>
+    <!-- Sidebar -->
+    <?php include '../components/sidebar.php'; ?>
 
     <main
         class="flex-1 flex flex-col p-4 md:p-8 lg:p-12 relative z-10 custom-scrollbar overflow-y-auto w-full md:h-[100dvh]">
@@ -471,7 +158,7 @@ try {
         <div class="md:hidden flex justify-between items-center mb-6 shrink-0 relative z-[60]">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 glass-effect flex items-center justify-center shadow-lg rounded-xl">
-                    <img src="../logo.jpg" alt="Logo" class="w-full h-full object-contain p-1">
+                    <img src="/assets/logo.jpg" alt="Logo" class="w-full h-full object-contain p-1">
                 </div>
                 <span class="font-black text-gray-800 tracking-tight">Return to Work</span>
             </div>
@@ -480,10 +167,12 @@ try {
                 <i class="fa-solid fa-bars text-xl"></i>
             </button>
         </div>
-        <header class="mb-8 shrink-0">
-            <h2 class="text-4xl font-black text-gray-800 tracking-tight">Approved Applications</h2>
-            <p class="text-gray-600 font-medium text-lg italic">All approved Return to Work requests</p>
-        </header>
+        
+        <?php 
+        $page_title = "Approved Applications";
+        $page_subtitle = "All approved Return to Work requests";
+        include '../components/header.php'; 
+        ?>
 
         <form method="GET" class="glass-panel rounded-[2rem] p-6 shadow-sm border border-white mb-8 shrink-0">
             <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-end">
@@ -550,10 +239,10 @@ try {
                                 <div class="flex items-center gap-2">
                                     <div
                                         class="w-8 h-8 rounded-full overflow-hidden bg-pink-100 flex items-center justify-center shrink-0">
-                                        <?= getEmployeePhotoImg($row['employee_id'] ?? '', 'w-full h-full object-cover', htmlspecialchars($row['employee_name'])) ?>
+                                        <?= getEmployeePhotoImg($row['employee_id'] ?? '', 'w-full h-full object-cover shadow-sm', htmlspecialchars($row['employee_name'] ?? '')) ?>
                                     </div>
-                                    <p class="text-sm font-bold text-gray-700"><?= htmlspecialchars($row['employee_number']) ?>
-                                        — <?= htmlspecialchars($row['employee_name']) ?></p>
+                                    <p class="text-sm font-bold text-gray-700"><?= htmlspecialchars($row['employee_number'] ?? '') ?>
+                                        — <?= htmlspecialchars($row['employee_name'] ?? '') ?></p>
                                 </div>
                             </div>
                             <div class="text-left">
@@ -739,32 +428,6 @@ try {
     </div>
 
     <script>
-        // Function to try multiple photo extensions
-        function tryPhotoExtensions(employeeId, imgElement) {
-            var extensions = ['jpeg', 'png', 'JPG', 'JPEG', 'PNG']; // Skip 'jpg' as it is the default
-            var baseUrl = 'http://10.2.0.8/lrnph/emp_photos/';
-
-            // Initialize state if first time failure
-            if (typeof imgElement.dataset.tryIndex === 'undefined') {
-                imgElement.dataset.tryIndex = 0;
-            }
-
-            var currentIndex = parseInt(imgElement.dataset.tryIndex);
-
-            if (currentIndex < extensions.length) {
-                // Try next extension
-                imgElement.dataset.tryIndex = currentIndex + 1;
-                imgElement.src = baseUrl + employeeId + '.' + extensions[currentIndex];
-            } else {
-                // All extensions failed, stop trying and show fallback
-                imgElement.onerror = null;
-                imgElement.style.display = 'none';
-                if (imgElement.nextElementSibling) {
-                    imgElement.nextElementSibling.style.display = 'block';
-                }
-            }
-        }
-
         let currentViewId = null;
         function openDetails(data) {
             currentViewId = data.id;
@@ -813,15 +476,15 @@ try {
             const medEmpty = document.getElementById('modalMedCertEmpty');
             const medPath = (data.medical_certificate_path || '').trim();
             if (medPath) {
+                medCard.classList.remove('hidden');
                 medLink.classList.remove('hidden');
                 medEmpty.classList.add('hidden');
-                medLink.href = '../' + medPath;
+                medLink.href = '/' + medPath;
                 medLink.textContent = 'Open attachment';
             } else {
+                medCard.classList.add('hidden');
                 medLink.classList.add('hidden');
                 medEmpty.classList.remove('hidden');
-                medLink.href = '#';
-                medLink.textContent = '';
             }
         }
         function printApplication() {
@@ -831,65 +494,13 @@ try {
         }
         function closeDetails() { document.getElementById('detailsModal').classList.add('hidden'); }
 
-        function openLogoutModal() {
-            document.getElementById('logoutModal').classList.remove('hidden');
-        }
-
-        function closeLogoutModal() {
-            document.getElementById('logoutModal').classList.add('hidden');
-        }
-
         window.onclick = (e) => {
             if (e.target == document.getElementById('detailsModal')) closeDetails();
-            if (e.target == document.getElementById('logoutModal')) closeLogoutModal();
-        }
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('mobileOverlay');
-
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-            }
         }
     </script>
 
-    <!-- Logout Modal -->
-    <div id="logoutModal"
-        class="fixed inset-0 z-[100] hidden bg-pink-900/20 backdrop-blur-sm flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl overflow-hidden">
-            <div class="p-8 border-b border-pink-50 flex justify-between items-center bg-pink-50/30">
-                <div>
-                    <h3 class="text-2xl font-black text-gray-800">Confirm Logout</h3>
-                    <p class="text-sm font-bold text-pink-400 uppercase mt-1">Are you sure?</p>
-                </div>
-                <button onclick="closeLogoutModal()" class="text-gray-400 hover:text-rose-500 text-2xl"><i
-                        class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="p-8 text-center">
-                <div
-                    class="w-16 h-16 bg-gradient-to-br from-pink-400 to-rose-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
-                    <i class="fa-solid fa-right-from-bracket text-2xl"></i>
-                </div>
-                <p class="text-gray-600 font-medium mb-8">You will be logged out of your account and redirected to the
-                    login page.</p>
-                <div class="flex gap-3">
-                    <button onclick="closeLogoutModal()"
-                        class="flex-1 py-3 text-gray-600 font-black uppercase text-xs tracking-widest hover:text-gray-800 transition-colors">
-                        Cancel
-                    </button>
-                    <a href="../auth/logout.php"
-                        class="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-black py-3 rounded-xl shadow-lg uppercase text-xs tracking-widest hover:shadow-xl transition-all text-center">
-                        Logout
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php include '../components/logout_modal.php'; ?>
 </body>
 
 </html>
+/html>

@@ -1,9 +1,9 @@
 <?php
-session_start();
+require_once __DIR__ . '/../connection/database.php';
 
 // 1. Check if user is logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: ../auth/login.php");
+    header("Location: /auth/login.php");
     exit();
 }
 
@@ -12,11 +12,10 @@ if (!isset($_SESSION['username'])) {
 $is_authorized = $_SESSION['is_approver'] ?? false;
 
 if (!$is_authorized) {
-    header("Location: ../auth/login.php?error=access_denied&role=" . urlencode($_SESSION['department'] ?? ''));
+    header("Location: /auth/login.php?error=access_denied&role=" . urlencode($_SESSION['department'] ?? ''));
     exit();
 }
 
-include '../db/db.php';
 include '../db/photo_helper.php';
 
 // Get approver's department for filtering
@@ -43,14 +42,11 @@ try {
     if ($status_filter !== 'All') {
         $where_clauses[] = "status = ?";
         $params[] = $status_filter;
-    } else {
-        // Optional: specific statuses only if needed, or just let it fetch all
-        // $where_clauses[] = "status IN ('Pending', 'Approved', 'Declined')";
     }
 
     // Search Filter
     if ($search) {
-        $where_clauses[] = "(UPPER(employee_name) LIKE UPPER(?) OR UPPER(employee_id) LIKE UPPER(?) OR UPPER(employee_number) LIKE UPPER(?) OR UPPER(prodn_type) LIKE UPPER(?))";
+        $where_clauses[] = "(\"employee_name\" ILIKE ? OR \"employee_id\" ILIKE ? OR \"employee_number\" ILIKE ? OR \"prodn_type\" ILIKE ?)";
         $search_param = '%' . $search . '%';
         $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param]);
     }
@@ -68,27 +64,26 @@ try {
     $where_sql = implode(' AND ', $where_clauses);
 
     // 2. Get Total Count for Pagination
-    $count_query = "SELECT COUNT(*) FROM return_to_work WHERE $where_sql";
+    $count_query = "SELECT COUNT(*) FROM rtw_return_to_work WHERE $where_sql";
     $count_stmt = $conn->prepare($count_query);
     $count_stmt->execute($params);
     $total_rows = $count_stmt->fetchColumn();
     $total_pages = ceil($total_rows / $limit);
 
     // 3. Fetch Limited Results
-    $query = "SELECT * FROM return_to_work WHERE $where_sql";
+    $query = "SELECT * FROM rtw_return_to_work WHERE $where_sql";
 
     $orderDirection = ($sort_order === 'ASC') ? 'ASC' : 'DESC';
     $query .= " ORDER BY filing_date $orderDirection, id $orderDirection";
-    $query .= " OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY"; // For SQL Server
+    $query .= " LIMIT $limit OFFSET $offset"; 
 
     $stmt = $conn->prepare($query);
     $stmt->execute($params);
     $submissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Get limited results...
-
 } catch (PDOException $e) {
-    die("Database Error: " . $e->getMessage());
+    error_log("Approvals Page Error: " . $e->getMessage());
+    die("Database Error. Please try again later.");
 }
 ?>
 <!DOCTYPE html>
@@ -99,7 +94,7 @@ try {
     <title>Approvals - La Rose Noire</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="../css/style.css" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
     <style>
         .pagination-capsule {
             position: fixed;
@@ -154,8 +149,8 @@ try {
         <!-- Mobile Header -->
         <div class="md:hidden flex justify-between items-center mb-6 shrink-0 relative z-[60]">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 glass-panel flex items-center justify-center shadow-lg rounded-xl">
-                    <img src="../logo.jpg" alt="Logo" class="w-full h-full object-contain p-1">
+                <div class="w-10 h-10 glass-effect flex items-center justify-center shadow-lg rounded-xl">
+                    <img src="/assets/logo.jpg" alt="Logo" class="w-full h-full object-contain p-1">
                 </div>
                 <span class="font-black text-gray-800 tracking-tight">Return to Work</span>
             </div>
@@ -202,7 +197,6 @@ try {
                     <input type="date" name="date_to" value="<?= htmlspecialchars($date_to) ?>"
                         class="w-full bg-slate-300/20 border-2 border-pink-500/30 p-3 rounded-xl outline-none transition-all text-sm font-bold input-focus text-gray-800">
                 </div>
-                <!-- Sort hidden in mobile or condensed if needed, keeping 6 columns -->
                 <div class="hidden">
                     <input type="hidden" name="sort" value="<?= htmlspecialchars($sort_order) ?>">
                 </div>
@@ -280,10 +274,9 @@ try {
                                         </button>
                                     <?php else: ?>
                                         <!-- Enabled buttons for declared applications -->
-                                        <form method="POST" action="../db/update_status.php" class="inline-block">
+                                        <form method="POST" action="/db/update_status.php" class="inline-block">
                                             <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
-                                            <input type="hidden" name="action" value="approve">
-                                            <input type="hidden" name="return" value="approvals.php?status=Pending">
+                                            <input type="hidden" name="status" value="Approved">
                                             <button type="submit"
                                                 class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-sky-500 text-white hover:bg-sky-600 transition-all">
                                                 <i class="fa-solid fa-check mr-1"></i> Approve
@@ -304,12 +297,12 @@ try {
                                 <div class="flex items-center gap-2">
                                     <div
                                         class="w-8 h-8 rounded-full overflow-hidden bg-pink-100 flex items-center justify-center shrink-0">
-                                        <?= getEmployeePhotoImg($row['employee_id'] ?? '', 'w-full h-full object-cover', htmlspecialchars($row['employee_name'])) ?>
+                                        <?= getEmployeePhotoImg($row['employee_id'] ?? '', 'w-full h-full object-cover', htmlspecialchars($row['employee_name'] ?? '')) ?>
                                     </div>
                                     <p class="text-sm font-bold text-gray-700">
-                                        <?= htmlspecialchars($row['employee_number']) ?>
+                                        <?= htmlspecialchars($row['employee_number'] ?? '') ?>
                                         —
-                                        <?= htmlspecialchars($row['employee_name']) ?>
+                                        <?= htmlspecialchars($row['employee_name'] ?? '') ?>
                                     </p>
                                 </div>
                             </div>
@@ -495,10 +488,9 @@ try {
                 <button onclick="closeDeclineModal()" class="text-gray-400 hover:text-rose-500 text-2xl"><i
                         class="fa-solid fa-xmark"></i></button>
             </div>
-            <form method="POST" action="../db/update_status.php" class="p-8">
+            <form method="POST" action="/db/update_status.php" class="p-8">
                 <input type="hidden" name="id" id="decline_id" value="">
-                <input type="hidden" name="action" value="decline">
-                <input type="hidden" name="return" value="approvals.php?status=Pending">
+                <input type="hidden" name="status" value="Declined">
 
                 <div class="space-y-4">
                     <div>
@@ -524,39 +516,9 @@ try {
         </div>
     </div>
 
-    <!-- Logout Modal -->
-
     <script>
-        // Function to try multiple photo extensions
-        function tryPhotoExtensions(employeeId, imgElement) {
-            var extensions = ['jpeg', 'png', 'JPG', 'JPEG', 'PNG']; // Skip 'jpg' as it is the default
-            var baseUrl = 'http://10.2.0.8/lrnph/emp_photos/';
-
-            // Initialize state if first time failure
-            if (typeof imgElement.dataset.tryIndex === 'undefined') {
-                imgElement.dataset.tryIndex = 0;
-            }
-
-            var currentIndex = parseInt(imgElement.dataset.tryIndex);
-
-            if (currentIndex < extensions.length) {
-                // Try next extension
-                imgElement.dataset.tryIndex = currentIndex + 1;
-                imgElement.src = baseUrl + employeeId + '.' + extensions[currentIndex];
-            } else {
-                // All extensions failed, stop trying and show fallback
-                imgElement.onerror = null;
-                imgElement.style.display = 'none';
-                if (imgElement.nextElementSibling) {
-                    imgElement.nextElementSibling.style.display = 'block';
-                }
-            }
-        }
-
-        let currentViewId = null;
         function openDetails(data) {
             document.body.classList.add('performance-mode');
-            currentViewId = data.id;
             document.getElementById('detailsModal').classList.remove('hidden');
             document.getElementById('modalTitle').innerText = 'Application #' + data.id.toString().padStart(4, '0');
             document.getElementById('modalSubtitle').innerText = 'Employee: ' + data.employee_number + ' | ' + (data.employee_name || 'N/A');
@@ -567,7 +529,6 @@ try {
             document.getElementById('modalDays').innerText = (data.days_absence || '0') + ' Day(s)';
             document.getElementById('modalSupDetails').innerText = data.superior_name_position || 'Not Notified';
 
-            // Display nurse declaration
             const nurseDecl = data.nurse_declaration;
             let displayText, declColor;
 
@@ -585,14 +546,12 @@ try {
                 document.getElementById('modalNurseDeclaration').innerHTML += `<br><small class="text-gray-500">${data.nurse_reason}</small>`;
             }
 
-            // Update employee photo
             const photoContainer = document.getElementById('modalEmployeePhoto');
             if (data.employee_id) {
                 const photoUrl = 'http://10.2.0.8/lrnph/emp_photos/' + data.employee_id + '.jpg';
                 photoContainer.innerHTML = '<img src="' + photoUrl + '" alt="' + (data.employee_name || 'Employee') + '" class="w-full h-full object-cover" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'inline-block\';" /><i class="fa-solid fa-user text-gray-400 text-xl" style="display:none;"></i>';
             }
 
-            // Handle medical certificate
             const medCard = document.getElementById('modalMedCertCard');
             const medLink = document.getElementById('modalMedCertLink');
             const medEmpty = document.getElementById('modalMedCertEmpty');
@@ -601,22 +560,18 @@ try {
                 medCard.classList.remove('hidden');
                 medLink.classList.remove('hidden');
                 medEmpty.classList.add('hidden');
-                medLink.href = '../' + medPath;
+                medLink.href = '/' + medPath;
                 medLink.textContent = 'Open attachment';
             } else {
                 medCard.classList.add('hidden');
                 medLink.classList.add('hidden');
                 medEmpty.classList.remove('hidden');
-                medLink.href = '#';
-                medLink.textContent = '';
             }
 
-            // Handle Status Text and Details
             const statusCard = document.getElementById('modalStatusCard');
             const statusText = document.getElementById('modalStatusText');
             statusText.innerText = data.status;
 
-            // Dynamic color for status
             if (data.status === 'Approved') {
                 statusText.className = 'font-bold text-pink-600';
                 statusCard.className = 'p-4 rounded-2xl bg-pink-50 border border-pink-100';
@@ -628,7 +583,6 @@ try {
                 statusCard.className = 'p-4 rounded-2xl bg-yellow-50 border border-yellow-100';
             }
 
-            // Detailed Status Info
             const detailsDiv = document.getElementById('modalStatusDetails');
             if (data.status === 'Approved') {
                 detailsDiv.classList.remove('hidden');
@@ -684,8 +638,10 @@ try {
             if (e.target == document.getElementById('declineModal')) closeDeclineModal();
         }
     </script>
-    </script>
     <?php include '../components/logout_modal.php'; ?>
 </body>
+
+</html>
+
 
 </html>

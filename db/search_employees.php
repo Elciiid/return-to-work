@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+require_once __DIR__ . '/../connection/database.php';
 
 $term = $_GET['term'] ?? '';
 
@@ -8,27 +8,25 @@ if (strlen($term) >= 1) {
     $term = trim($term);
 
     try {
-        // Simplified query using supervisor's logic with LTRIM/RTRIM
+        // PostgreSQL version: uses || for concatenation, COALESCE instead of ISNULL, and ILIKE for case-insensitive search
         $query = "SELECT
-                    BiometricsID as employee_number,
-                    EmployeeID as employee_id,
-                    LTRIM(RTRIM(ISNULL(FirstName,''))) + ' ' + LTRIM(RTRIM(ISNULL(LastName,''))) as employee_name,
-                    REPLACE(Department, ' - LRN', '') as department
-                  FROM LRNPH_E.dbo.lrn_master_list
-                  WHERE UPPER(BiometricsID) LIKE UPPER(?)
-                     OR UPPER(EmployeeID) LIKE UPPER(?)
-                     OR UPPER(LTRIM(RTRIM(ISNULL(FirstName,''))) + ' ' + LTRIM(RTRIM(ISNULL(LastName,'')))) LIKE UPPER(?)
-                     OR UPPER(Department) LIKE UPPER(?)
+                    \"BiometricsID\" as employee_number,
+                    \"EmployeeID\" as employee_id,
+                    LTRIM(RTRIM(COALESCE(\"FirstName\",''))) || ' ' || LTRIM(RTRIM(COALESCE(\"LastName\",''))) as employee_name,
+                    REPLACE(\"Department\", ' - LRN', '') as department
+                  FROM rtw_master_list
+                  WHERE \"BiometricsID\" ILIKE ?
+                     OR \"EmployeeID\" ILIKE ?
+                     OR (LTRIM(RTRIM(COALESCE(\"FirstName\",''))) || ' ' || LTRIM(RTRIM(COALESCE(\"LastName\",'')))) ILIKE ?
+                     OR \"Department\" ILIKE ?
                   ORDER BY 
                     CASE 
-                        WHEN UPPER(LTRIM(RTRIM(ISNULL(FirstName,''))) + ' ' + LTRIM(RTRIM(ISNULL(LastName,'')))) LIKE UPPER(?) THEN 1 
+                        WHEN (LTRIM(RTRIM(COALESCE(\"FirstName\",''))) || ' ' || LTRIM(RTRIM(COALESCE(\"LastName\",'')))) ILIKE ? THEN 1 
                         ELSE 2 
                     END,
-                    LTRIM(RTRIM(ISNULL(FirstName,''))) + ' ' + LTRIM(RTRIM(ISNULL(LastName,'')))";
+                    LTRIM(RTRIM(COALESCE(\"FirstName\",''))) || ' ' || LTRIM(RTRIM(COALESCE(\"LastName\",'')))";
 
-        // Supervisor's approach: same parameter for all fields
         $like = '%' . $term . '%';
-        // We added one more parameter in the ORDER BY clause
         $params = [$like, $like, $like, $like, $like];
 
         $stmt = $conn->prepare($query);
@@ -38,7 +36,8 @@ if (strlen($term) >= 1) {
         header('Content-Type: application/json');
         echo json_encode($results);
     } catch (PDOException $e) {
-        echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+        error_log("Search Error: " . $e->getMessage());
+        echo json_encode(['error' => 'Database error.']);
     }
 }
 ?>

@@ -1,9 +1,9 @@
 <?php
-session_start();
+require_once __DIR__ . '/../connection/database.php';
 
 // 1. Check if user is logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: ../auth/login.php");
+    header("Location: /auth/login.php");
     exit();
 }
 
@@ -12,30 +12,32 @@ $current_role = strtolower(trim($_SESSION['role'] ?? ''));
 $nurse_roles = ['clinic assistant', 'company nurse'];
 
 if (!in_array($current_role, $nurse_roles)) {
-    header("Location: ../auth/login.php?error=access_denied&role=" . urlencode($_SESSION['role']));
+    header("Location: /auth/login.php?error=access_denied&role=" . urlencode($_SESSION['role'] ?? ''));
     exit();
 }
 
-include '../db/db.php';
 include '../db/photo_helper.php';
 
 try {
     // Get total declarations made (lifetime)
-    $total_declarations_stmt = $conn->query("SELECT COUNT(*) FROM return_to_work WHERE nurse_declaration IS NOT NULL");
+    $total_declarations_stmt = $conn->query("SELECT COUNT(*) FROM rtw_return_to_work WHERE nurse_declaration IS NOT NULL");
     $total_declarations = $total_declarations_stmt->fetchColumn();
 
     // Get declarations made in last 7 days
-    $weekly_declarations_stmt = $conn->query("SELECT COUNT(*) FROM return_to_work WHERE nurse_declaration IS NOT NULL AND nurse_declaration_date >= DATEADD(day, -7, GETDATE())");
+    $weekly_declarations_stmt = $conn->query("SELECT COUNT(*) FROM rtw_return_to_work WHERE nurse_declaration IS NOT NULL AND nurse_declaration_date >= CURRENT_DATE - INTERVAL '7 days'");
     $weekly_declarations = $weekly_declarations_stmt->fetchColumn();
 
     // Get recent declarations
-    $recent_stmt = $conn->query("SELECT TOP 5 filing_date, employee_name, employee_id, prodn_type, nurse_declaration FROM return_to_work WHERE nurse_declaration IS NOT NULL ORDER BY nurse_declaration_date DESC");
+    $recent_stmt = $conn->query("SELECT filing_date, employee_name, employee_id, prodn_type, nurse_declaration FROM rtw_return_to_work WHERE nurse_declaration IS NOT NULL ORDER BY nurse_declaration_date DESC LIMIT 5");
     $recent_activity = $recent_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Get counts...
+    // Get pending count (count of all applications where nurse hasn't declared yet)
+    $pending_count_stmt = $conn->query("SELECT COUNT(*) FROM rtw_return_to_work WHERE nurse_declaration IS NULL");
+    $pending_count = $pending_count_stmt->fetchColumn();
 
 } catch (PDOException $e) {
-    die("Database Error: " . $e->getMessage());
+    error_log("Nurse Dashboard Error: " . $e->getMessage());
+    die("Database Error. Please try again later.");
 }
 ?>
 <!DOCTYPE html>
@@ -47,12 +49,11 @@ try {
     <title>Nurse Dashboard - La Rose Noire</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="../css/style.css" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
 </head>
 
 <body class="font-sans text-gray-800 flex flex-col md:flex-row min-h-screen">
     <div class="mesh-bg"></div>
-
 
     <?php include '../components/sidebar.php'; ?>
 
@@ -73,6 +74,7 @@ try {
         <?php endif; ?>
 
         <?php 
+        $page_title = "Nurse Dashboard";
         $page_subtitle = "Overview of medical declarations and health assessments.";
         ob_start(); ?>
         <div class="flex gap-3">
@@ -217,15 +219,15 @@ try {
                                         <div class="flex items-center gap-4">
                                             <div
                                                 class="w-10 h-10 rounded-full bg-white shadow-sm p-0.5 shrink-0 overflow-hidden">
-                                                <?= getEmployeePhotoImg($recent['employee_id'] ?? '', 'w-full h-full object-cover rounded-full', htmlspecialchars($recent['employee_name'])) ?>
+                                                <?= getEmployeePhotoImg($recent['employee_id'] ?? '', 'w-full h-full object-cover rounded-full', htmlspecialchars($recent['employee_name'] ?? '')) ?>
                                             </div>
                                             <div>
                                                 <div
                                                     class="font-bold text-slate-800 group-hover:text-pink-600 transition-colors">
-                                                    <?= htmlspecialchars($recent['employee_name']) ?>
+                                                    <?= htmlspecialchars($recent['employee_name'] ?? '') ?>
                                                 </div>
                                                 <div class="text-[10px] text-slate-400 tracking-wider font-bold">
-                                                    <?= htmlspecialchars($recent['employee_id']) ?>
+                                                    <?= htmlspecialchars($recent['employee_id'] ?? '') ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -276,4 +278,4 @@ try {
     <?php include '../components/logout_modal.php'; ?>
 </body>
 
-</html>
+</html>

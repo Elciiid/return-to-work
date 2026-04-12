@@ -1,8 +1,8 @@
 <?php
-session_start();
+require_once __DIR__ . '/../connection/database.php';
 
 if (!isset($_SESSION['username'])) {
-    header("Location: ../auth/login.php");
+    header("Location: /auth/login.php");
     exit();
 }
 
@@ -32,7 +32,7 @@ if (isset($_SESSION['original_user'])) {
     unset($_SESSION['original_can_act_as_she']);
     unset($_SESSION['original_is_admin']);
 
-    header("Location: ../pages/index.php");
+    header("Location: /pages/index.php");
     exit();
 }
 
@@ -54,5 +54,6 @@ $_SESSION['department'] = 'MEDICAL';
 $_SESSION['is_approver'] = false;
 $_SESSION['can_act_as_she'] = false; // Prevents "Act as SHE" button from showing while already acting as SHE
 
-header("Location: ../pages/nurse_dashboard.php");
+header("Location: /pages/nurse_dashboard.php");
 exit();
+?>
