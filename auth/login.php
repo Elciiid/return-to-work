@@ -181,60 +181,60 @@
     </div>
 
     <!-- Forgot Password Modal -->
-    <div id="forgot-modal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="flex items-center gap-4">
-                    <div
-                        class="w-12 h-12 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-key text-2xl text-pink-500"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">Reset Password</h3>
-                        <p class="text-sm text-gray-600">Password recovery</p>
-                    </div>
+    <div id="forgot-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0 active:opacity-100">
+        <div class="bg-white/90 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] p-10 max-w-md w-full transform transition-all duration-300 scale-95 opacity-0 active:scale-100 active:opacity-100 relative group">
+            <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-pink-400 to-purple-400 rounded-3xl rotate-12 flex items-center justify-center shadow-xl group-hover:rotate-0 transition-transform duration-500">
+                <i class="fas fa-key text-4xl text-white"></i>
+            </div>
+            
+            <div class="mt-12 text-center space-y-6">
+                <div>
+                    <h3 class="text-3xl font-black text-gray-800 tracking-tight">Need a Reset?</h3>
+                    <p class="text-pink-500 text-xs font-bold uppercase tracking-widest mt-1">Credentials Recovery</p>
                 </div>
-                <button class="modal-close" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                <p class="text-gray-600 mb-6 leading-relaxed">
-                    For security reasons, please contact the IT department directly to reset your credentials.
+                
+                <p class="text-gray-600 leading-relaxed font-medium">
+                    For your security, we don't handle automated resets. Please visit the <span class="text-pink-600 font-bold">IT Helpdesk</span> in person to verify your identity and restore access.
                 </p>
-                <button class="btn-secondary" onclick="closeModal()">
-                    <i class="fas fa-check mr-2"></i>Understood
+                
+                <button class="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg shadow-pink-200 transition-all active:scale-95 flex items-center justify-center gap-3" onclick="closeModal()">
+                    <i class="fas fa-check"></i>
+                    <span>Got it, thanks!</span>
                 </button>
             </div>
+            
+            <button class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors" onclick="closeModal()">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
     </div>
 
     <!-- Error Modal -->
-    <div id="error-modal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="flex items-center gap-4">
-                    <div
-                        class="w-12 h-12 bg-gradient-to-r from-red-100 to-pink-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-2xl text-red-500"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">Authentication Error</h3>
-                        <p class="text-sm text-gray-600">Login failed</p>
-                    </div>
+    <div id="error-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0 active:opacity-100">
+        <div class="bg-white/90 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] p-10 max-w-md w-full transform transition-all duration-300 scale-95 opacity-0 active:scale-100 active:opacity-100 relative group">
+            <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-red-400 to-pink-500 rounded-3xl -rotate-12 flex items-center justify-center shadow-xl group-hover:rotate-0 transition-transform duration-500">
+                <i class="fas fa-shield-virus text-4xl text-white"></i>
+            </div>
+            
+            <div class="mt-12 text-center space-y-6">
+                <div>
+                    <h3 class="text-3xl font-black text-gray-800 tracking-tight">Access Denied</h3>
+                    <p class="text-red-500 text-xs font-bold uppercase tracking-widest mt-1">Security Verification Failed</p>
                 </div>
-                <button class="modal-close" onclick="closeErrorModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                <p class="text-gray-600 mb-6 leading-relaxed" id="error-message">
-                    Invalid Username or Password. Please check your credentials and try again.
+                
+                <p class="text-gray-600 leading-relaxed font-medium" id="error-message">
+                    The credentials you entered don't match our records. Please double-check your username and try again.
                 </p>
-                <button class="btn-primary" onclick="closeErrorModal()">
-                    <i class="fas fa-check mr-2"></i>OK
+                
+                <button class="w-full bg-gray-800 hover:bg-black text-white font-bold py-4 px-8 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3" onclick="closeErrorModal()">
+                    <i class="fas fa-redo-alt"></i>
+                    <span>Try Again</span>
                 </button>
             </div>
+            
+            <button class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors" onclick="closeErrorModal()">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
     </div>
 
@@ -254,22 +254,32 @@
 
         // Modal Functions
         function openModal() {
-            document.getElementById('forgot-modal').classList.add('active');
+            const modal = document.getElementById('forgot-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('active'), 10);
         }
 
         function closeModal() {
-            document.getElementById('forgot-modal').classList.remove('active');
+            const modal = document.getElementById('forgot-modal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
         function openErrorModal() {
-            document.getElementById('error-modal').classList.add('active');
+            const modal = document.getElementById('error-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('active'), 10);
         }
 
         function closeErrorModal() {
-            document.getElementById('error-modal').classList.remove('active');
+            const modal = document.getElementById('error-modal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            
             // Remove error parameter from URL without reloading
             const url = new URL(window.location);
             url.searchParams.delete('error');
+            url.searchParams.delete('role');
             window.history.replaceState({}, '', url);
         }
 
@@ -277,36 +287,36 @@
         document.getElementById('forgot-link').addEventListener('click', openModal);
 
         // Keyboard Navigation
-        document.addEventListener('keydown', func tion(e) {
+        document.addEventListener('keydown', function(e) {
             if(e.key === 'Escape') {
-            closeModal();
-            closeErrorModal();
-        }
+                closeModal();
+                closeErrorModal();
+            }
         });
 
         // Close modal when clicking overlay
-        document.getElementById('forgot-modal').addEventListener('click', fun ction(e) {
+        document.getElementById('forgot-modal').addEventListener('click', function(e) {
             if(e.target === this) closeModal();
         });
 
-        document.getElementById('error-modal').addEventListener('click', fu nction(e) {
+        document.getElementById('error-modal').addEventListener('click', function(e) {
             if(e.target === this) closeErrorModal();
         });
 
         // Check for error parameter in URL and show modal
-        window.addEventListener('DOMContentLoaded', f unction() {
+        window.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const errorType = urlParams.get('error');
             const userRole = urlParams.get('role');
 
             if(errorType === 'invalid') {
-            openErrorModal();
-        } else if (errorType === 'access_denied') {
-            const errorMessage = document.getElementById('error-message');
-            errorMessage.textContent = `Access denied. Your role "${userRole}" does not have permission to access this page. Please contact your administrator.`;
-            openErrorModal();
-        }
-    });
+                openErrorModal();
+            } else if (errorType === 'access_denied') {
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = `Access denied. Your role "${userRole}" does not have permission to access this page. Please contact your administrator.`;
+                openErrorModal();
+            }
+        });
     </script>
 </body>
 

@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $query = "SELECT
                     lu.username,
                     lu.password,
-                    ml.\"FirstName\" || ' ' || ml.\"LastName\" as fullname,
+                    COALESCE(ml.\"FirstName\", '') || ' ' || COALESCE(ml.\"LastName\", '') as fullname,
                     REPLACE(ml.\"Department\", ' - LRN', '') as department,
                     ml.\"PositionTitle\",
                     ml.\"EmployeeID\",
@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Admin Logic: IT Department + Active OR BiometricsID 4
                     $is_it_dept = (strpos($row['department'], 'Information Technology Department') !== false);
                     $is_active = ($row['IsActive'] == '1' || $row['IsActive'] === true);
-                    $is_special_admin = ($row['BiometricsID'] == '4');
+                    $is_special_admin = ($row['BiometricsID'] == '4' || $row['BiometricsID'] == 'admin');
                     
                     $_SESSION['is_admin'] = ($is_special_admin || ($is_it_dept && $is_active));
 
@@ -61,9 +61,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $position_title = strtolower(trim($row['PositionTitle'] ?? ''));
                     $nurse_roles = ['clinic assistant', 'company nurse'];
 
-                    if ($is_authorized_approver) {
+                    if ($is_authorized_approver || $_SESSION['is_admin']) {
                         $_SESSION['is_approver'] = true;
-                        $_SESSION['role'] = 'approver'; 
+                        $_SESSION['role'] = $_SESSION['is_admin'] ? 'admin' : 'approver'; 
                         header("Location: /pages/dashboard.php");
                     } elseif (in_array($position_title, $nurse_roles)) {
                         $_SESSION['is_approver'] = false;

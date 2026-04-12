@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS rtw_return_to_work (
 );
 
 -- MOCK DATA
--- Password is 'admin123' hashed with bcrypt
+-- Password is 'password' hashed with bcrypt
 -- Note: Replace with actual hash for production
 INSERT INTO rtw_app_users (username, password, full_name, role)
 VALUES 
@@ -87,9 +87,9 @@ ON CONFLICT (username) DO NOTHING;
 
 INSERT INTO rtw_master_list ("EmployeeID", "FirstName", "LastName", "Department", "PositionTitle", "BiometricsID", "IsActive")
 VALUES 
-('EMP001', 'John', 'Doe', 'Information Technology Department', 'Software Engineer', '4', TRUE),
+('EMP001', 'John', 'Doe', 'Information Technology Department', 'Software Engineer', 'admin', TRUE),
 ('EMP002', 'Jane', 'Smith', 'Human Resources', 'HR Manager', '101', TRUE),
-('EMP003', 'Alice', 'Nurse', 'Clinic', 'Company Nurse', '102', TRUE)
+('EMP003', 'Alice', 'Nurse', 'Clinic', 'Company Nurse', 'nurse', TRUE)
 ON CONFLICT ("EmployeeID") DO NOTHING;
 
 INSERT INTO rtw_user_permissions (employee_id, permission_type)

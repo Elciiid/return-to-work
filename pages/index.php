@@ -313,14 +313,14 @@ include '../db/photo_helper.php';
                     data.forEach(sup => {
                         const div = document.createElement('div');
                         div.className = "group p-4 rounded-2xl bg-slate-50/50 border border-slate-200 hover:border-pink-300 hover:bg-pink-50 cursor-pointer transition-all flex items-center gap-4 hover:shadow-md hover:shadow-pink-100";
-                        div.onclick = () => selectSupervisor(sup.name, sup.position);
+                        div.onclick = () => selectSupervisor(sup.employee_name, sup.position);
 
                         div.innerHTML = `
                             <div class="w-12 h-12 rounded-full bg-white text-pink-600 flex items-center justify-center font-black text-sm border-2 border-slate-100 group-hover:border-pink-200 shadow-sm shrink-0">
-                                ${getInitials(sup.name)}
+                                ${getInitials(sup.employee_name)}
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="font-black text-slate-700 text-sm group-hover:text-pink-600 truncate transition-colors">${sup.name}</p>
+                                <p class="font-black text-slate-700 text-sm group-hover:text-pink-600 truncate transition-colors">${sup.employee_name}</p>
                                 <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider truncate">${sup.position}</p>
                             </div>
                             <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-pink-400 transition-colors text-xs"></i>
