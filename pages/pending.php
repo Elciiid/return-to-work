@@ -16,7 +16,7 @@ if (!$is_authorized) {
     exit();
 }
 
-include '../db/photo_helper.php';
+include __DIR__ . '/../db/photo_helper.php';
 
 // Get approver's department for filtering
 $approver_department = $_SESSION['department'] ?? '';
@@ -150,7 +150,7 @@ try {
     </div>
 
     <!-- Sidebar -->
-    <?php include '../components/sidebar.php'; ?>
+    <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
     <main
         class="flex-1 flex flex-col p-4 md:p-8 lg:p-12 relative z-10 custom-scrollbar overflow-y-auto w-full md:h-[100dvh]">
@@ -171,7 +171,7 @@ try {
         <?php 
         $page_title = "Pending Approvals";
         $page_subtitle = "Entries waiting for your decision";
-        include '../components/header.php'; 
+        include __DIR__ . '/../components/header.php'; 
         ?>
 
         <form method="GET" class="glass-panel rounded-[2rem] p-6 shadow-sm border border-white mb-8 shrink-0">
@@ -474,7 +474,7 @@ try {
         </div>
     </div>
 
-    <?php include '../components/logout_modal.php'; ?>
+    <?php include __DIR__ . '/../components/logout_modal.php'; ?>
 
     <script>
         let currentViewId = null;

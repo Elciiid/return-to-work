@@ -5,7 +5,7 @@ if (!isset($_SESSION['username'])) {
     header("Location: /auth/login.php");
     exit();
 }
-include '../db/photo_helper.php';
+include __DIR__ . '/../db/photo_helper.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,7 +37,7 @@ include '../db/photo_helper.php';
     <div class="mesh-bg"></div>
 
     <!-- Sidebar -->
-    <?php include '../components/sidebar.php'; ?>
+    <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
 
     <main
@@ -60,7 +60,7 @@ include '../db/photo_helper.php';
         <div class="w-full max-w-[1400px] mx-auto text-left overflow-visible">
         <?php 
         $page_subtitle = "Complete the form to initiate your health clearance";
-        include '../components/header.php'; 
+        include __DIR__ . '/../components/header.php'; 
         ?>
 
             <form action="/db/submit.php" method="POST" enctype="multipart/form-data" id="rtwForm"
@@ -363,7 +363,7 @@ include '../db/photo_helper.php';
         function resetForm() { if (confirm("Discard all changes?")) location.reload(); }
     </script>
 
-    <?php include '../components/logout_modal.php'; ?>
+    <?php include __DIR__ . '/../components/logout_modal.php'; ?>
 </body>
 
 </html>

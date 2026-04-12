@@ -7,7 +7,7 @@ if (!isset($_SESSION['username']) || !($_SESSION['is_admin'] ?? false)) {
     exit();
 }
 
-include '../db/photo_helper.php';
+include __DIR__ . '/../db/photo_helper.php';
 
 // Get counts for badges or info (optional)
 try {
@@ -63,14 +63,14 @@ try {
     <div class="mesh-bg"></div>
 
     <!-- Sidebar -->
-    <?php include '../components/sidebar.php'; ?>
+    <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col p-8 lg:p-12 overflow-y-auto custom-scrollbar relative z-10 w-full md:h-[100dvh]">
         <?php 
         $page_title = "System Settings";
         $page_subtitle = "Administrative Management Hub";
-        include '../components/header.php'; 
+        include __DIR__ . '/../components/header.php'; 
         ?>
 
         <!-- Tabs Navigation -->
@@ -400,6 +400,6 @@ try {
             }
         }
     </script>
-    <?php include '../components/logout_modal.php'; ?>
+    <?php include __DIR__ . '/../components/logout_modal.php'; ?>
 </body>
 </html>

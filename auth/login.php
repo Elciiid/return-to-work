@@ -176,28 +176,27 @@
                         Secure access to your workspace
                     </p>
                 </div>
-            </div>
         </div>
     </div>
 
     <!-- Forgot Password Modal -->
-    <div id="forgot-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0 active:opacity-100">
-        <div class="bg-white/90 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] p-10 max-w-md w-full transform transition-all duration-300 scale-95 opacity-0 active:scale-100 active:opacity-100 relative group">
+    <div id="forgot-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white/95 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] p-10 max-w-md w-full transform transition-all duration-500 scale-90 opacity-0 relative group">
             <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-pink-400 to-purple-400 rounded-3xl rotate-12 flex items-center justify-center shadow-xl group-hover:rotate-0 transition-transform duration-500">
                 <i class="fas fa-key text-4xl text-white"></i>
             </div>
             
-            <div class="mt-12 text-center space-y-6">
+            <div class="mt-12 text-center space-y-6 text-slate-800">
                 <div>
-                    <h3 class="text-3xl font-black text-gray-800 tracking-tight">Need a Reset?</h3>
-                    <p class="text-pink-500 text-xs font-bold uppercase tracking-widest mt-1">Credentials Recovery</p>
+                    <h3 class="text-3xl font-black tracking-tight">Need a Reset?</h3>
+                    <p class="text-pink-500 text-xs font-black uppercase tracking-widest mt-1">Credentials Recovery</p>
                 </div>
                 
-                <p class="text-gray-600 leading-relaxed font-medium">
+                <p class="leading-relaxed font-medium">
                     For your security, we don't handle automated resets. Please visit the <span class="text-pink-600 font-bold">IT Helpdesk</span> in person to verify your identity and restore access.
                 </p>
                 
-                <button class="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg shadow-pink-200 transition-all active:scale-95 flex items-center justify-center gap-3" onclick="closeModal()">
+                <button class="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-black py-4 px-8 rounded-2xl shadow-lg shadow-pink-200 transition-all active:scale-95 flex items-center justify-center gap-3" onclick="closeModal()">
                     <i class="fas fa-check"></i>
                     <span>Got it, thanks!</span>
                 </button>
@@ -210,23 +209,23 @@
     </div>
 
     <!-- Error Modal -->
-    <div id="error-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0 active:opacity-100">
-        <div class="bg-white/90 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] p-10 max-w-md w-full transform transition-all duration-300 scale-95 opacity-0 active:scale-100 active:opacity-100 relative group">
-            <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-red-400 to-pink-500 rounded-3xl -rotate-12 flex items-center justify-center shadow-xl group-hover:rotate-0 transition-transform duration-500">
+    <div id="error-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white/95 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] p-10 max-w-md w-full transform transition-all duration-500 scale-90 opacity-0 relative group">
+            <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-red-500 to-pink-500 rounded-3xl -rotate-12 flex items-center justify-center shadow-xl group-hover:rotate-0 transition-transform duration-500">
                 <i class="fas fa-shield-virus text-4xl text-white"></i>
             </div>
             
-            <div class="mt-12 text-center space-y-6">
+            <div class="mt-12 text-center space-y-6 text-slate-800">
                 <div>
-                    <h3 class="text-3xl font-black text-gray-800 tracking-tight">Access Denied</h3>
-                    <p class="text-red-500 text-xs font-bold uppercase tracking-widest mt-1">Security Verification Failed</p>
+                    <h3 class="text-3xl font-black tracking-tight">Access Denied</h3>
+                    <p class="text-red-500 text-xs font-black uppercase tracking-widest mt-1">Security Verification Failed</p>
                 </div>
                 
-                <p class="text-gray-600 leading-relaxed font-medium" id="error-message">
+                <p class="leading-relaxed font-medium" id="error-message">
                     The credentials you entered don't match our records. Please double-check your username and try again.
                 </p>
                 
-                <button class="w-full bg-gray-800 hover:bg-black text-white font-bold py-4 px-8 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3" onclick="closeErrorModal()">
+                <button class="w-full bg-slate-800 hover:bg-black text-white font-black py-4 px-8 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3" onclick="closeErrorModal()">
                     <i class="fas fa-redo-alt"></i>
                     <span>Try Again</span>
                 </button>
@@ -237,6 +236,17 @@
             </button>
         </div>
     </div>
+
+    <style>
+        .modal-active {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        .modal-active > div {
+            opacity: 1 !important;
+            transform: scale(1) !important;
+        }
+    </style>
 
     <script>
         // Password Toggle
@@ -256,25 +266,37 @@
         function openModal() {
             const modal = document.getElementById('forgot-modal');
             modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('active'), 10);
+            // Force reflow
+            modal.offsetHeight;
+            modal.classList.add('modal-active');
         }
 
         function closeModal() {
             const modal = document.getElementById('forgot-modal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.classList.add('hidden'), 300);
+            modal.classList.remove('modal-active');
+            setTimeout(() => {
+                if (!modal.classList.contains('modal-active')) {
+                    modal.classList.add('hidden');
+                }
+            }, 500);
         }
 
         function openErrorModal() {
             const modal = document.getElementById('error-modal');
             modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('active'), 10);
+            // Force reflow
+            modal.offsetHeight;
+            modal.classList.add('modal-active');
         }
 
         function closeErrorModal() {
             const modal = document.getElementById('error-modal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.classList.add('hidden'), 300);
+            modal.classList.remove('modal-active');
+            setTimeout(() => {
+                if (!modal.classList.contains('modal-active')) {
+                    modal.classList.add('hidden');
+                }
+            }, 500);
             
             // Remove error parameter from URL without reloading
             const url = new URL(window.location);
@@ -318,6 +340,9 @@
             }
         });
     </script>
+</body>
+
+</html>
 </body>
 
 </html>

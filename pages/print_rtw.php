@@ -8,7 +8,7 @@ if (!isset($_SESSION['username']) || !$is_authorized) {
     die("Unauthorized access.");
 }
 
-include '../db/photo_helper.php';
+include __DIR__ . '/../db/photo_helper.php';
 
 // 2. Fetch the specific record
 $id = $_GET['id'] ?? null;

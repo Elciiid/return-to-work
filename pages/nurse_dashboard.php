@@ -16,7 +16,7 @@ if (!in_array($current_role, $nurse_roles)) {
     exit();
 }
 
-include '../db/photo_helper.php';
+include __DIR__ . '/../db/photo_helper.php';
 
 try {
     // Get total declarations made (lifetime)
@@ -55,7 +55,7 @@ try {
 <body class="font-sans text-gray-800 flex flex-col md:flex-row min-h-screen">
     <div class="mesh-bg"></div>
 
-    <?php include '../components/sidebar.php'; ?>
+    <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
     <main
         class="flex-1 flex flex-col p-4 md:p-8 lg:p-12 relative z-10 custom-scrollbar overflow-y-auto w-full md:h-[100dvh]">
@@ -85,7 +85,7 @@ try {
         </div>
         <?php 
         $header_right = ob_get_clean();
-        include '../components/header.php'; 
+        include __DIR__ . '/../components/header.php'; 
         ?>
 
         <!-- Stats Grid -->
@@ -275,7 +275,7 @@ try {
         </div>
     </main>
 
-    <?php include '../components/logout_modal.php'; ?>
+    <?php include __DIR__ . '/../components/logout_modal.php'; ?>
 </body>
 
 </html>
