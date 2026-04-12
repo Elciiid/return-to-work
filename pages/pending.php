@@ -511,8 +511,9 @@ try {
             // Update employee photo
             const photoContainer = document.getElementById('modalEmployeePhoto');
             if (data.employee_id) {
-                const photoUrl = 'http://10.2.0.8/lrnph/emp_photos/' + data.employee_id + '.jpg';
-                photoContainer.innerHTML = '<img src="' + photoUrl + '" alt="' + (data.employee_name || 'Employee') + '" class="w-full h-full object-cover" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'inline-block\';" /><i class="fa-solid fa-user text-gray-400 text-xl" style="display:none;"></i>';
+                const name = encodeURIComponent(data.employee_name || data.employee_id);
+                const photoUrl = `https://ui-avatars.com/api/?name=${name}&background=random&color=fff&size=128&bold=true`;
+                photoContainer.innerHTML = '<img src="' + photoUrl + '" alt="' + (data.employee_name || 'Employee') + '" class="w-full h-full object-cover" />';
             }
 
             // Handle medical certificate

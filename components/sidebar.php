@@ -48,7 +48,7 @@ if ($role === 'company nurse' || $role === 'clinic assistant') {
             <div class="relative w-fit mx-auto mb-2">
                 <div class="w-16 h-16 rounded-full border-[3px] border-white shadow-lg overflow-hidden bg-slate-100 flex items-center justify-center relative z-10">
                     <?php if (function_exists('getEmployeePhotoImg')): ?>
-                        <?= getEmployeePhotoImg($_SESSION['employee_id'] ?? '', 'w-full h-full object-cover', $_SESSION['fullname'] ?? '') ?>
+                        <?= getEmployeePhotoImg($_SESSION['employee_id'] ?? '', 'w-full h-full object-cover', '', $_SESSION['fullname'] ?? '') ?>
                     <?php else: ?>
                         <i class="fa-solid fa-user text-gray-400 text-2xl"></i>
                     <?php endif; ?>

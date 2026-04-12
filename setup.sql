@@ -89,13 +89,54 @@ INSERT INTO rtw_master_list ("EmployeeID", "FirstName", "LastName", "Department"
 VALUES 
 ('EMP001', 'John', 'Doe', 'Information Technology Department', 'Software Engineer', 'admin', TRUE),
 ('EMP002', 'Jane', 'Smith', 'Human Resources', 'HR Manager', '101', TRUE),
-('EMP003', 'Alice', 'Nurse', 'Clinic', 'Company Nurse', 'nurse', TRUE)
+('EMP003', 'Alice', 'Nurse', 'Clinic', 'Company Nurse', 'nurse', TRUE),
+('EMP004', 'Robert', 'Taylor', 'Production Department', 'Production Manager', '104', TRUE),
+('EMP005', 'Maria', 'Garcia', 'Quality Assurance', 'QA Supervisor', '105', TRUE),
+('EMP006', 'James', 'Wilson', 'Finance Department', 'Finance Head', '106', TRUE),
+('EMP007', 'Sarah', 'Miller', 'Production Department', 'Line Lead', '107', TRUE),
+('EMP008', 'Michael', 'Brown', 'Logistics', 'Logistics Supervisor', '108', TRUE),
+('EMP009', 'Elena', 'Lopez', 'Human Resources', 'HR Specialist', '109', TRUE),
+('EMP010', 'David', 'Clark', 'Production Department', 'Machine Operator', '110', TRUE),
+('EMP011', 'Lim', 'Tae-oh', 'Management', 'Executive Director', '111', TRUE),
+('EMP012', 'Chen', 'Wei', 'Operations', 'Operations Manager', '112', TRUE),
+('EMP013', 'Yuki', 'Tanaka', 'Production Department', 'Shift Supervisor', '113', TRUE)
 ON CONFLICT ("EmployeeID") DO NOTHING;
 
 INSERT INTO rtw_user_permissions (employee_id, permission_type)
-VALUES ('EMP001', 'APPROVER'), ('EMP001', 'SHE_IMPERSONATOR')
+VALUES 
+('EMP001', 'APPROVER'),
+('EMP001', 'SHE_IMPERSONATOR'),
+('EMP002', 'APPROVER'),
+('EMP004', 'APPROVER'),
+('EMP005', 'APPROVER'),
+('EMP006', 'APPROVER'),
+('EMP008', 'APPROVER'),
+('EMP011', 'APPROVER'),
+('EMP012', 'APPROVER'),
+('EMP013', 'APPROVER')
 ON CONFLICT DO NOTHING;
 
-INSERT INTO rtw_supervisors (employee_id, department)
-VALUES ('EMP002', 'Human Resources')
+-- MOCK Return-to-Work Applications
+INSERT INTO rtw_return_to_work (
+    "employee_number", "employee_id", "employee_name", "department", "prodn_type", 
+    "days_absence", "first_date_absence", "date_returned", "reason", 
+    "notified_superior", "superior_name_position", "filing_date", "status",
+    "nurse_declaration", "nurse_reason", "nurse_declaration_date", "approved_by", "approved_at"
+)
+VALUES 
+-- PENDING APPROVAL (Needs Admin action)
+('109', 'EMP009', 'Elena Lopez', 'Human Resources', 'Non-Production', 3, CURRENT_DATE - 4, CURRENT_DATE - 1, 'Flu recovery', 'Yes', 'Jane Smith', CURRENT_DATE - 1, 'Pending', 'Fit', 'Fully recovered, no symptoms.', CURRENT_TIMESTAMP - INTERVAL '2 hours', NULL, NULL),
+('110', 'EMP010', 'David Clark', 'Production Department', 'Production', 5, CURRENT_DATE - 6, CURRENT_DATE, 'Personal reasons', 'Yes', 'Robert Taylor', CURRENT_DATE, 'Pending', 'Fit', 'No health issues reported.', CURRENT_TIMESTAMP - INTERVAL '1 hour', NULL, NULL),
+
+-- PENDING NURSE (Needs Nurse action)
+('107', 'EMP007', 'Sarah Miller', 'Production Department', 'Production', 2, CURRENT_DATE - 3, CURRENT_DATE, 'Mild headache', 'Yes', 'Robert Taylor', CURRENT_DATE, 'Pending Nurse', NULL, NULL, NULL, NULL, NULL),
+('113', 'EMP013', 'Yuki Tanaka', 'Production Department', 'Production', 4, CURRENT_DATE - 5, CURRENT_DATE - 1, 'Muscle pain', 'Yes', 'Yuki Tanaka', CURRENT_DATE - 1, 'Pending Nurse', NULL, NULL, NULL, NULL, NULL),
+
+-- APPROVED (History)
+('admin', 'EMP001', 'John Doe', 'Information Technology Department', 'Non-Production', 1, CURRENT_DATE - 10, CURRENT_DATE - 9, 'Fever', 'Yes', 'Lim Tae-oh', CURRENT_DATE - 9, 'Approved', 'Fit', 'Cleared after rest.', CURRENT_DATE - 9, 'Lim Tae-oh', CURRENT_DATE - 9),
+('104', 'EMP004', 'Robert Taylor', 'Production Department', 'Production', 7, CURRENT_DATE - 15, CURRENT_DATE - 8, 'COVID-19 Follow-up', 'Yes', 'Lim Tae-oh', CURRENT_DATE - 8, 'Approved', 'Fit', 'Negative test verified.', CURRENT_DATE - 8, 'Lim Tae-oh', CURRENT_DATE - 8),
+('105', 'EMP005', 'Maria Garcia', 'Quality Assurance', 'Non-Production', 3, CURRENT_DATE - 12, CURRENT_DATE - 9, 'Migraine', 'Yes', 'Jane Smith', CURRENT_DATE - 9, 'Approved', 'Fit', 'Symptom free.', CURRENT_DATE - 9, 'Jane Smith', CURRENT_DATE - 9),
+
+-- DECLINED (History)
+('108', 'EMP008', 'Michael Brown', 'Logistics', 'Non-Production', 2, CURRENT_DATE - 4, CURRENT_DATE - 2, 'Cough and Colds', 'Yes', 'Jane Smith', CURRENT_DATE - 2, 'Declined', 'Unfit', 'Sore throat and cough still present.', CURRENT_DATE - 2, 'Jane Smith', CURRENT_DATE - 2)
 ON CONFLICT DO NOTHING;

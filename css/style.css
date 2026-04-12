@@ -4,9 +4,12 @@
     --primary: #ec4899;
     --primary-dark: #be185d;
     --secondary: #8b5cf6;
-    --bg-mesh-1: #ffedd5;
-    --bg-mesh-2: #fae8ff;
-    --bg-mesh-3: #fce7f3;
+    --bg-mesh-1: #ffecd2;
+    /* Darker Peach */
+    --bg-mesh-2: #f5d0ff;
+    /* Darker Purple */
+    --bg-mesh-3: #fbcfe8;
+    /* Darker Pink */
 }
 
 * {
@@ -22,8 +25,9 @@ h4,
 }
 
 body {
-    background-color: #f8fafc;
-    background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+    background-color: #f1f5f9;
+    /* Darker off-white */
+    background: linear-gradient(120deg, #f8fafc 0%, #f1f5f9 100%);
     min-height: 100vh;
     margin: 0;
     display: flex;
@@ -68,18 +72,18 @@ body {
 
 /* Glassmorphism Utilities */
 .glass-panel {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.7);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
 }
 
 .glass-card {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     contain: paint;
     /* Isolate rendering */

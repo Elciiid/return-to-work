@@ -1,24 +1,14 @@
-<?php
 /**
  * Helper function to get employee profile photo URL
  * @param string $employee_number The employee ID/number
- * @return string The photo URL or empty string if not found
+ * @param string $fullname The full name of the employee to generate initials
+ * @return string The photo URL
  */
-function getEmployeePhotoUrl($employee_number)
+function getEmployeePhotoUrl($employee_number, $fullname = '')
 {
-    if (empty($employee_number)) {
-        return '';
-    }
-
-    // Base URL for employee photos
-    $base_url = 'http://10.2.0.8/lrnph/emp_photos/';
-
-    // Try common image extensions
-    $extensions = ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG'];
-
-    // Return the first extension format (browser will handle 404 if not found)
-    // We'll use JavaScript to handle fallback on client side
-    return $base_url . htmlspecialchars($employee_number) . '.jpg';
+    // For demo: Use UI-Avatars for all profiles
+    $name = !empty($fullname) ? urlencode($fullname) : urlencode($employee_number);
+    return "https://ui-avatars.com/api/?name={$name}&background=random&color=fff&size=128&bold=true";
 }
 
 /**
@@ -26,24 +16,14 @@ function getEmployeePhotoUrl($employee_number)
  * @param string $employee_number The employee ID/number
  * @param string $classes CSS classes for the img tag
  * @param string $alt Alt text (defaults to employee number)
- * @return string HTML img tag with fallback icon
+ * @return string HTML img tag
  */
-function getEmployeePhotoImg($employee_number, $classes = '', $alt = '')
+function getEmployeePhotoImg($employee_number, $classes = '', $alt = '', $fullname = '')
 {
-    if (empty($employee_number)) {
-        return '<i class="fa-solid fa-user text-gray-400 text-2xl"></i>';
-    }
-
-    $employee_id = htmlspecialchars($employee_number);
-    $alt_text = $alt ?: 'Employee ' . $employee_id;
+    $photo_url = getEmployeePhotoUrl($employee_number, $fullname);
     $classes_attr = $classes ? ' class="' . htmlspecialchars($classes) . '"' : '';
+    $alt_text = htmlspecialchars($alt ?: $fullname ?: 'Employee ' . $employee_number);
 
-    // Base URL for employee photos
-    $base_url = 'http://10.2.0.8/lrnph/emp_photos/';
-
-    // Create img tag with JavaScript fallback that tries multiple extensions
-    $js_function = "tryPhotoExtensions('$employee_id', this)";
-
-    return '<div class="relative w-full h-full flex items-center justify-center"><img src="' . $base_url . $employee_id . '.jpg" alt="' . htmlspecialchars($alt_text) . '"' . $classes_attr . ' onerror="' . $js_function . '" class="relative z-10" /><i class="fa-solid fa-user text-gray-400 text-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0 hidden"></i></div>';
+    return '<img src="' . $photo_url . '" alt="' . $alt_text . '"' . $classes_attr . ' />';
 }
 ?>

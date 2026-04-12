@@ -145,8 +145,7 @@ try {
                             <div class="glass-card rounded-[2rem] p-6 shadow-sm flex items-center justify-between group">
                                 <div class="flex items-center gap-5">
                                     <div class="w-14 h-14 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center text-xl shadow-inner shrink-0 relative overflow-hidden">
-                                         <img :src="'http://10.2.0.8/lrnph/emp_photos/' + perm.employee_id + '.jpg'" 
-                                              @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='flex'"
+                                         <img :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(perm.first_name + ' ' + perm.last_name || perm.employee_id)}&background=random&color=fff&size=128&bold=true`" 
                                               class="w-full h-full object-cover relative z-10">
                                          <div class="absolute inset-0 flex items-center justify-center text-gray-400 z-0" style="display:none">
                                              <i :class="perm.permission_type === 'APPROVER' ? 'fa-solid fa-user-check' : 'fa-solid fa-user-nurse'"></i>
@@ -240,8 +239,7 @@ try {
                             <div class="glass-card rounded-[2rem] p-6 shadow-sm flex items-center justify-between group">
                                 <div class="flex items-center gap-5">
                                     <div class="w-14 h-14 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center text-xl shadow-inner shrink-0 relative overflow-hidden">
-                                         <img :src="'http://10.2.0.8/lrnph/emp_photos/' + sup.employee_id + '.jpg'" 
-                                              @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='flex'"
+                                         <img :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(sup.first_name + ' ' + sup.last_name || sup.employee_id)}&background=random&color=fff&size=128&bold=true`" 
                                               class="w-full h-full object-cover relative z-10">
                                          <div class="absolute inset-0 flex items-center justify-center text-gray-400 z-0" style="display:none">
                                              <i class="fa-solid fa-user-tie"></i>

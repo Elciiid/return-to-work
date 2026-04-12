@@ -373,8 +373,9 @@ try {
 
             const photoContainer = document.getElementById('modalEmployeePhoto');
             if (data.employee_id) {
-                const photoUrl = 'http://10.2.0.8/lrnph/emp_photos/' + data.employee_id + '.jpg';
-                photoContainer.innerHTML = '<img src="' + photoUrl + '" alt="Employee" class="w-full h-full object-cover" onerror="this.src=\'/assets/default-avatar.png\'" />';
+                const name = encodeURIComponent(data.employee_name || data.employee_id);
+                const photoUrl = `https://ui-avatars.com/api/?name=${name}&background=random&color=fff&size=128&bold=true`;
+                photoContainer.innerHTML = '<img src="' + photoUrl + '" alt="' + (data.employee_name || 'Employee') + '" class="w-full h-full object-cover" />';
             }
 
             const medCard = document.getElementById('modalMedCertCard');
